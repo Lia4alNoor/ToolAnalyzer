@@ -425,7 +425,7 @@ def _seed_attack_patterns(conn):
         rows.append((pid, name, seq_json, goal, papers, ev_type, conf,
                      summary, eligibility, severity) + CIA_IMPACT[pid])
     conn.executemany(
-        """INSERT OR REPLACE INTO attack_patterns
+        """INSERT OR IGNORE INTO attack_patterns
            (pattern_id, pattern_name, capability_sequence, attack_goal,
             supporting_papers, evidence_type, confidence, evidence_summary,
             module_6_eligibility, severity, confidentiality_impact,

@@ -154,7 +154,7 @@ def request_suggestion(tool, source, model, base_url):
 # UI
 # ============================================================
 
-def render_tool_suggestion_panel(tool, model, base_url):
+def render_tool_suggestion_panel(tool, model, base_url, idx=0):
     """Render the per-tool source check + on-demand Ollama suggestion."""
 
     tool_name = tool.get("tool") or tool.get("tool_name") or "unknown_tool"
@@ -186,9 +186,9 @@ def render_tool_suggestion_panel(tool, model, base_url):
         )
         st.code(source.get("snippet", ""), language=source.get("language", "text"))
 
-        result_key = f"ollama_suggestion_{tool_name}"
+        result_key = f"ollama_suggestion_{tool_name}_{idx}"
 
-        if st.button("Get Ollama suggestion", key=f"ollama_button_{tool_name}"):
+        if st.button("Get Ollama suggestion", key=f"ollama_button_{tool_name}_{idx}"):
 
             try:
                 with st.spinner("Reading source and generating a suggestion..."):
@@ -238,7 +238,7 @@ def render_tool_suggestion_panel(tool, model, base_url):
                 st.text_area(
                     "Suggested description",
                     value=stored["suggested_description"],
-                    key=f"ollama_desc_{tool_name}",
+                    key=f"ollama_desc_{tool_name}_{idx}",
                 )
         else:
             st.success("Suggests the declared description matches the source.")
@@ -294,5 +294,5 @@ def render():
 
     st.divider()
 
-    for tool in all_tools:
-        render_tool_suggestion_panel(tool, model, base_url)
+    for idx, tool in enumerate(all_tools):
+        render_tool_suggestion_panel(tool, model, base_url, idx=idx)

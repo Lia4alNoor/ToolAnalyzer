@@ -70,7 +70,15 @@ def process(data):
         extracted = extract_tool_capabilities(tool)
         extracted_tools.append(extracted)
 
-        print(f"  [+] {tool.get('tool', 'unknown')}: extracted features")
+        features = extracted.get("capability_features", {})
+
+        print(
+            f" HEREHREHERE "
+            f"  [+] {tool.get('tool', 'unknown')}: "
+            f"read_only={features.get('is_read_only')}, "
+            f"destructive={features.get('is_destructive')}, "
+            f"modifies_state={features.get('modifies_state')}"
+        )
 
     result = {
         "tools": extracted_tools,

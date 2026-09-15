@@ -1,0 +1,70 @@
+==========================================================================
+AGENT PRE-DEPLOYMENT ASSESSMENT REPORT
+==========================================================================
+Server source        : C:\Users\amal4\AppData\Local\Temp\tmp1a_22his\test_2_hint_consistency_corpus_stripped.json
+Tools analysed       : 10
+Capabilities present : C2 (10 tool(s)), C4 (4 tool(s))
+
+==========================================================================
+1. MATCHED LITERATURE-BACKED CAPABILITY COMPOSITIONS (MODULE 6)
+==========================================================================
+
+P2 - Sequential Tool Attack Chaining (STAC) [project severity: High]
+  Literature-defined sequence : C4 -> C4 -> C4
+  Finding type                : Level-1 relevance finding (sequence not statically confirmable)
+  Mapping confidence          : High (literature-mapping confidence)
+  CIA impact (C/I/A/Total)    : 0/3/3/6 [PROJECT-DERIVED]
+  CIA rationale               : STAC demonstrates sequential destructive filesystem operations resulting in permanent loss of critical data.
+
+Patterns excluded from composition matching: P7 (NOT_ELIGIBLE; stored for evidence only).
+
+==========================================================================
+2. MITIGATION COVERAGE FOR MATCHED COMPOSITIONS (MODULE 8)
+==========================================================================
+
+P2 - Sequential Tool Attack Chaining (STAC)
+  Coverage status : Literature-supported but incomplete
+  Note            : The only literature defenses evaluated against STAC (LM-3, LM-4) leave high residual ASR (58.6% / 79.3% at the first attack turn, as reported by the source), so no literature mitigation fully addresses the stateful repeated-C4 sequence; PDM-1 is a project-derived proposal for that residual gap.
+  Literature mitigations:
+    - LM-3 Harm-Benefit Reasoning [DIRECT] (explicitly evaluated/addressed by the source)
+      papers: STAC | timing: Pre-execution (per action)
+      effectiveness: Source reports STAC ASR reduced from 87.4% to 58.6% at the first attack execution turn.
+      limitations: Residual ASR remains high (58.6%); prompted defenses can be bypassed; effectiveness varies by model.
+    - LM-4 Summarization Guardrail [DIRECT] (explicitly evaluated/addressed by the source)
+      papers: STAC | timing: Pre-execution (on ingestion)
+      effectiveness: Source reports STAC ASR lowered only to 79.3% at turn T (84.7% at T+1, 87.0% at T+2) versus 87.4% / 92.5% / 93.4% with no defense.
+      limitations: Largely ineffective against multi-turn stateful sequences; may discard task-relevant detail; injected instructions can survive summarization.
+  Project-derived mitigations:
+    - PDM-1 Contextual State Transaction Auditing (Stateful Access Control / Sequence Monitoring; Runtime / Pre-execution)
+      evidence status: PROJECT-DERIVED — not directly evaluated by the cited literature
+      rationale: STAC demonstrates that individually benign state changes can become destructive when combined across turns. SEAgent demonstrates runtime policy enforcement. The project therefore proposes maintaining resource-level state history and requiring confirmation when cumulative operations produce a dangerous state transition.
+
+==========================================================================
+3. PATTERN COVERAGE REFERENCE (P1-P9)
+==========================================================================
+P1: Literature-supported (literature: LM-1, LM-2, LM-6, LM-7, LM-8, LM-9 | project: PDM-2)
+P2: Literature-supported but incomplete (literature: LM-3, LM-4 | project: PDM-1)
+    note: The only literature defenses evaluated against STAC (LM-3, LM-4) leave high residual ASR (58.6% / 79.3% at the first attack turn, as reported by the source), so no literature mitigation fully addresses the stateful repeated-C4 sequence; PDM-1 is a project-derived proposal for that residual gap.
+P3: Literature-supported (literature: LM-1, LM-6, LM-7, LM-8, LM-9 | project: -)
+P4: Literature-supported (literature: LM-1, LM-2 | project: -)
+P5: Literature mitigation gap (literature: - | project: PDM-3)
+    note: Literature mitigation gap; PDM-3 is a project-derived proposal addressing this identified gap.
+P6: Literature-supported (literature: LM-1, LM-6, LM-7, LM-8, LM-9 | project: -)
+P7: Literature-supported (literature: LM-5 | project: -)
+    note: Literature-supported, but P7 remains outside the ordered C1-C6 composition analysis (NOT_ELIGIBLE for Module 6 matching).
+P8: Literature-supported (literature: LM-1, LM-2, LM-6, LM-7, LM-8, LM-9 | project: -)
+P9: Literature-supported (literature: LM-1, LM-2, LM-6, LM-7, LM-8, LM-9 | project: -)
+
+==========================================================================
+4. OPEN MITIGATION GAPS
+==========================================================================
+No open mitigation gaps among matched compositions.
+
+==========================================================================
+5. INTERPRETATION LIMITS AND DISCLAIMERS
+==========================================================================
+- Level-1 static analysis establishes capability presence only. It does not establish tool invocation order, inter-tool data flow, I/O compatibility, or runtime attack execution. This finding is therefore a potential composition and not a confirmed attack path.
+- CIA scores are project-derived impact classifications based on consequences demonstrated in the literature. They do not represent attack probability, exploitability, or proof of runtime execution.
+- Findings refer to matched literature-backed capability compositions (Level-1 static findings). They are not executed attacks, confirmed attack chains, or observed executions.
+- A mitigation applying to a capability does not mean the source paper evaluated it against every attack pattern containing that capability. 'explicitly_addressed' and 'potentially_applicable' are kept distinct; potential applicability is never reported as empirical validation.
+- CIA totals are CIA IMPACT TOTALS only; they are not converted into a risk score at this stage.

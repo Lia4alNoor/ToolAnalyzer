@@ -226,5 +226,15 @@ def save_capability_rules(capability_id, rules, notes=None):
         json.dumps(document, indent=2, ensure_ascii=False) + "\n",
         encoding="utf-8",
     )
+    # Verify that the exact file we just wrote can be
+    # immediately reloaded and contains the new rules.
+    verify = load_capability_file(capability_id)
+
+    if verify["rules"] != cleaned:
+        raise LexiconError(
+            f"Lexicon save verification failed for {path}. "
+            "The file was written but its contents do not match "
+            "the edited rules."
+        )
 
     return len(cleaned)

@@ -21,7 +21,7 @@ from modules.capability_lexicon_loader import (
 # Database location:
 # agent_pre_deployer/modules/capability_ontology.db
 
-DB_PATH = Path(__file__).parent.parent / "modules" / "capability_ontology.db"
+DB_PATH = Path(__file__).parent.parent / "modules"/"modules"/ "capability_ontology.db"
 
 TABLE_NAME = "attack_patterns"
 
@@ -843,6 +843,11 @@ def render_capability_lexicon():
             selected,
             rules,
             notes=document.get("notes"),
+        )
+
+        st.code(
+            path.read_text(encoding="utf-8"),
+            language="json",
         )
 
     except LexiconError as error:

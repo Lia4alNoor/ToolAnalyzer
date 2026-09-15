@@ -1,4 +1,4 @@
-"""
+""" s
 capability_normalizer — canonical normalization vocabulary (canon_normalizer)
 
 Normalizes raw tool expressions (name + description) into the canonical

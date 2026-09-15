@@ -37,22 +37,22 @@
       "enabled": true
     },
     {
-  "rule_id": "C6-R04",
-  "category": "lexical_regex",
-  "match_scope": "tool_name_and_description",
-  "pattern": "\\b(lights?|lock|climate|vacuum|cover|siren|fan|switch|thermostat|garage|alarm|camera)s?[_-]?control\\b",
-  "reason": "Tool name follows the common smart-home/IoT domain-control naming convention (e.g. lights_control, climate_control), even when the description is a terse feature list rather than a sentence.",
-  "confidence": "High",
-  "enabled": true
-},
-{
-  "rule_id": "C6-R05",
-  "category": "lexical_regex",
-  "match_scope": "tool_name_and_description",
-  "pattern": "\\b(brightness|color[ _-]?temp|rgb|fan speed|tilt|dock(ing)?|open/close|hvac)\\b",
-  "reason": "Terse product-style feature vocabulary real smart-home integrations use to describe physical device state (brightness/color for lights, tilt/open-close for covers, dock/fan-speed for vacuums, HVAC for climate).",
-  "confidence": "Medium",
-  "enabled": true
-}
+      "rule_id": "C6-R04",
+      "category": "lexical_regex",
+      "match_scope": "tool_name_and_description",
+      "pattern": "\\b(lights?|lock|climate|vacuum|cover|siren|fan|switch|thermostat|garage|alarm|camera)s?[_-]?control\\b",
+      "reason": "Tool name follows the common smart-home/IoT domain-control naming convention (e.g. lights_control, climate_control), even when the description is a terse feature list rather than a sentence.",
+      "confidence": "High",
+      "enabled": true
+    },
+    {
+      "rule_id": "C6-R05",
+      "category": "lexical_regex",
+      "match_scope": "tool_name_and_description",
+      "pattern": "\\b(brightness|dim|color[ _-]?temp|rgb|fan speed|tilt|dock(ing)?|open/close|hvac)\\b",
+      "reason": "Terse product-style feature vocabulary real smart-home integrations use to describe physical device state (brightness/color for lights, tilt/open-close for covers, dock/fan-speed for vacuums, HVAC for climate).",
+      "confidence": "Medium",
+      "enabled": true
+    }
   ]
 }
