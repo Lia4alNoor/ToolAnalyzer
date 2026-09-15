@@ -1,0 +1,110 @@
+[
+  {
+    "tool": "git_status",
+    "description": "Shows the working tree status",
+    "readOnlyHint": true,
+    "destructiveHint": false,
+    "idempotentHint": true,
+    "openWorldHint": false,
+    "source": "list_tools()"
+  },
+  {
+    "tool": "git_diff_unstaged",
+    "description": "Shows changes in the working directory that are not yet staged",
+    "readOnlyHint": true,
+    "destructiveHint": false,
+    "idempotentHint": true,
+    "openWorldHint": false,
+    "source": "list_tools()"
+  },
+  {
+    "tool": "git_diff_staged",
+    "description": "Shows changes that are staged for commit",
+    "readOnlyHint": true,
+    "destructiveHint": false,
+    "idempotentHint": true,
+    "openWorldHint": false,
+    "source": "list_tools()"
+  },
+  {
+    "tool": "git_diff",
+    "description": "Shows differences between branches or commits",
+    "readOnlyHint": true,
+    "destructiveHint": false,
+    "idempotentHint": true,
+    "openWorldHint": false,
+    "source": "list_tools()"
+  },
+  {
+    "tool": "git_commit",
+    "description": "Records changes to the repository",
+    "readOnlyHint": false,
+    "destructiveHint": false,
+    "idempotentHint": false,
+    "openWorldHint": false,
+    "source": "list_tools()"
+  },
+  {
+    "tool": "git_add",
+    "description": "Adds file contents to the staging area",
+    "readOnlyHint": false,
+    "destructiveHint": false,
+    "idempotentHint": true,
+    "openWorldHint": false,
+    "source": "list_tools()"
+  },
+  {
+    "tool": "git_reset",
+    "description": "Unstages all staged changes",
+    "readOnlyHint": false,
+    "destructiveHint": true,
+    "idempotentHint": true,
+    "openWorldHint": false,
+    "source": "list_tools()"
+  },
+  {
+    "tool": "git_log",
+    "description": "Shows the commit logs",
+    "readOnlyHint": true,
+    "destructiveHint": false,
+    "idempotentHint": true,
+    "openWorldHint": false,
+    "source": "list_tools()"
+  },
+  {
+    "tool": "git_create_branch",
+    "description": "Creates a new branch from an optional base branch",
+    "readOnlyHint": false,
+    "destructiveHint": false,
+    "idempotentHint": false,
+    "openWorldHint": false,
+    "source": "list_tools()"
+  },
+  {
+    "tool": "git_checkout",
+    "description": "Switches branches",
+    "readOnlyHint": false,
+    "destructiveHint": false,
+    "idempotentHint": false,
+    "openWorldHint": false,
+    "source": "list_tools()"
+  },
+  {
+    "tool": "git_show",
+    "description": "Shows the contents of a commit",
+    "readOnlyHint": true,
+    "destructiveHint": false,
+    "idempotentHint": true,
+    "openWorldHint": false,
+    "source": "list_tools()"
+  },
+  {
+    "tool": "git_branch",
+    "description": "List Git branches",
+    "readOnlyHint": true,
+    "destructiveHint": false,
+    "idempotentHint": true,
+    "openWorldHint": false,
+    "source": "list_tools()"
+  }
+]

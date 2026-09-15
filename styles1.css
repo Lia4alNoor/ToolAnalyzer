@@ -1,0 +1,603 @@
+/* =========================================================
+   AgentPreDeployer — styles1.css
+   Modern minimal white / blue / green / orange theme
+   ========================================================= */
+
+:root {
+    --bg: #ececec;
+    --surface: #ffffff;
+    --surface-soft: #f6fcff;
+    --surface-blue: #eff6ff;
+    --surface-green: #f0fdf4;
+    --surface-orange: #fff7ed;
+
+    --text: #172033;
+    --muted: #151515;
+
+    --blue: #7aa4ff;
+    --blue-dark: #1d4ed8;
+    --blue-soft: #dbeafe;
+
+    --green: #16a34a;
+    --green-dark: #15803d;
+    --green-soft: #dcfce7;
+
+    --orange: #ea580c;
+    --orange-dark: #c2410c;
+    --orange-soft: #ffedd5;
+
+    --red: #dc2626;
+    --red-soft: #fef2f2;
+
+    --border: #3f6493;
+    --border-strong: #cbd5e1;
+
+    --radius: 10px;
+    --radius-lg: 14px;
+
+    --shadow: 0 1px 3px rgba(15, 23, 42, 0.06);
+    --shadow-hover: 0 4px 14px rgba(15, 23, 42, 0.08);
+}
+
+
+/* =========================================================
+   APP
+   ========================================================= */
+
+.stApp {
+    background: var(--bg);
+    color: var(--text);
+}
+
+[data-testid="stAppViewContainer"] {
+    background: var(--bg);
+}
+
+[data-testid="stHeader"] {
+    background: var(--bg);
+}
+
+[data-testid="stMainBlockContainer"] {
+    max-width: 1400px;
+    padding-top: 4rem;
+    padding-bottom: 3rem;
+}
+
+
+/* Completely hide the sidebar. */
+
+section[data-testid="stSidebar"] {
+    display: none;
+}
+
+button[kind="header"] {
+    display: none;
+}
+
+
+/* =========================================================
+   HEADER
+   ========================================================= */
+
+.app-header {
+    margin: 0 0 1.75rem 0;
+    padding: 0;
+}
+
+.main-title {
+    color: var(--text);
+    font-size: 2rem;
+    font-weight: 750;
+    letter-spacing: -0.035em;
+    line-height: 1.1;
+    margin: 0;
+}
+
+.subtitle {
+    color: var(--muted);
+    font-size: 0.95rem;
+    margin-top: 0.45rem;
+}
+
+/* =========================================================
+   TOP-LEVEL TABS
+   ========================================================= */
+
+.stTabs [role="tablist"] {
+    gap: 0.35rem;
+    border-bottom: 1px solid var(--border);
+    margin-bottom: 1.5rem;
+}
+
+.stTabs [data-testid="stTab"] {
+    height: 44px;
+    padding: 0 1.1rem;
+
+    color: var(--muted);
+    font-size: 0.92rem;
+    font-weight: 650;
+
+    border-radius: 8px 8px 0 0;
+
+    transition:
+        background-color 0.15s ease,
+        color 0.15s ease;
+}
+
+
+/* =========================================================
+   TAB 1 — CAPABILITY RISK ANALYZER
+   BLUE
+   ========================================================= */
+
+.stTabs [data-testid="stTab"][data-key="0"] {
+    color: var(--blue-dark);
+}
+
+.stTabs [data-testid="stTab"][data-key="0"]:hover {
+    background: var(--surface-blue);
+    color: var(--blue-dark);
+}
+
+.stTabs [data-testid="stTab"][data-key="0"][aria-selected="true"] {
+    background: var(--surface-blue) !important;
+    color: var(--blue-dark) !important;
+    font-weight: 750;
+}
+
+
+/* =========================================================
+   TAB 2 — THREAT CURATION CHAIN
+   ORANGE
+   ========================================================= */
+
+.stTabs [data-testid="stTab"][data-key="1"] {
+    color: var(--orange-dark);
+}
+
+.stTabs [data-testid="stTab"][data-key="1"]:hover {
+    background: var(--surface-orange);
+    color: var(--orange-dark);
+}
+
+.stTabs [data-testid="stTab"][data-key="1"][aria-selected="true"] {
+    background: var(--surface-orange) !important;
+    color: var(--orange-dark) !important;
+    font-weight: 750;
+}
+
+
+/* =========================================================
+   TAB 3 — EDIT DATABASE
+   GREEN
+   ========================================================= */
+
+.stTabs [data-testid="stTab"][data-key="2"] {
+    color: var(--green-dark);
+}
+
+.stTabs [data-testid="stTab"][data-key="2"]:hover {
+    background: var(--surface-green);
+    color: var(--green-dark);
+}
+
+.stTabs [data-testid="stTab"][data-key="2"][aria-selected="true"] {
+    background: var(--surface-green) !important;
+    color: var(--green-dark) !important;
+    font-weight: 750;
+}
+
+
+/* =========================================================
+   ACTIVE TAB INDICATOR
+   ========================================================= */
+
+/* Blue active indicator */
+.stTabs [data-testid="stTab"][data-key="0"][aria-selected="true"]
+    .react-aria-SelectionIndicator {
+    background: var(--blue) !important;
+}
+
+/* Orange active indicator */
+.stTabs [data-testid="stTab"][data-key="1"][aria-selected="true"]
+    .react-aria-SelectionIndicator {
+    background: var(--orange) !important;
+}
+
+/* Green active indicator */
+.stTabs [data-testid="stTab"][data-key="2"][aria-selected="true"]
+    .react-aria-SelectionIndicator {
+    background: var(--green) !important;
+}
+
+
+
+
+
+/* =========================================================
+   TYPOGRAPHY
+   ========================================================= */
+
+h1,
+h2,
+h3,
+h4 {
+    color: var(--text) !important;
+    letter-spacing: -0.02em;
+}
+
+h1 {
+    font-size: 1.8rem !important;
+}
+
+h2 {
+    font-size: 1.4rem !important;
+}
+
+h3 {
+    font-size: 1.1rem !important;
+}
+
+h4 {
+    font-size: 1rem !important;
+}
+
+p,
+li {
+    color: var(--text);
+}
+
+[data-testid="stCaptionContainer"] p {
+    color: var(--muted);
+}
+
+
+/* =========================================================
+   BUTTONS
+   ========================================================= */
+
+.stButton > button,
+.stDownloadButton > button {
+    border-radius: 8px;
+    border: 1px solid var(--border-strong);
+    background: var(--surface);
+    color: var(--text);
+    font-weight: 650;
+    min-height: 40px;
+    transition: all 0.15s ease;
+}
+
+.stButton > button:hover,
+.stDownloadButton > button:hover {
+    border-color: var(--blue);
+    color: var(--blue);
+    box-shadow: var(--shadow-hover);
+}
+
+.stButton > button[kind="primary"] {
+    background: var(--blue) !important;
+    border-color: var(--blue) !important;
+    color: #ffffff !important;
+}
+
+.stButton > button[kind="primary"]:hover {
+    background: var(--blue-dark) !important;
+    border-color: var(--blue-dark) !important;
+}
+
+
+/* =========================================================
+   FILE UPLOADER
+   ========================================================= */
+
+[data-testid="stFileUploader"] {
+    border: 1px solid var(--border);
+    border-radius: var(--radius-lg);
+    background: var(--surface-soft);
+    padding: 1.2rem;
+}
+
+[data-testid="stFileUploaderDropzone"] {
+    border: 1px dashed var(--border-strong) !important;
+    background: var(--surface) !important;
+    border-radius: 10px !important;
+}
+
+[data-testid="stFileUploaderDropzone"]:hover {
+    border-color: var(--blue) !important;
+    background: var(--surface-blue) !important;
+}
+
+
+/* =========================================================
+   METRICS
+   ========================================================= */
+
+[data-testid="stMetric"] {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    padding: 1rem;
+    box-shadow: var(--shadow);
+}
+
+[data-testid="stMetricLabel"] {
+    color: var(--muted) !important;
+    font-weight: 600;
+}
+
+[data-testid="stMetricValue"] {
+    color: var(--text) !important;
+    font-weight: 750;
+}
+
+
+/* =========================================================
+   EXPANDERS
+   ========================================================= */
+
+[data-testid="stExpander"] {
+    border: 1px solid var(--border) !important;
+    border-radius: var(--radius) !important;
+    background: var(--surface) !important;
+    box-shadow: none !important;
+    overflow: hidden;
+}
+
+[data-testid="stExpander"] summary:hover {
+    background: var(--surface-soft);
+}
+
+
+/* =========================================================
+   CODE BLOCKS
+   ========================================================= */
+
+[data-testid="stCodeBlock"] {
+    border: 1px solid var(--border);
+    border-radius: 8px;
+}
+
+
+/* =========================================================
+   ALERTS
+   ========================================================= */
+
+[data-testid="stAlert"] {
+    border-radius: 9px;
+    border-width: 1px;
+}
+
+
+/* =========================================================
+   CAPABILITY LABELS
+   ========================================================= */
+
+.capability {
+    display: inline-block;
+    padding: 0.35rem 0.7rem;
+    margin: 0.25rem 0;
+
+    border-radius: 999px;
+
+    background: var(--surface-blue);
+    color: var(--blue-dark);
+
+    border: 1px solid var(--blue-soft);
+
+    font-size: 0.85rem;
+    font-weight: 700;
+}
+
+
+/* =========================================================
+   COMPOSITION CARDS
+   ========================================================= */
+
+.composition-card {
+    background: var(--surface);
+
+    border: 1px solid var(--border);
+    border-left: 4px solid var(--blue);
+
+    border-radius: var(--radius-lg);
+
+    padding: 1rem 1.1rem;
+    margin: 0.7rem 0 0.9rem 0;
+
+    box-shadow: var(--shadow);
+}
+
+.composition-header {
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+    gap: 1rem;
+}
+
+.pattern-id {
+    color: var(--blue);
+    font-size: 0.78rem;
+    font-weight: 750;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+}
+
+.pattern-name {
+    color: var(--text);
+    font-size: 1.05rem;
+    font-weight: 700;
+    margin-top: 0.2rem;
+}
+
+.sequence {
+    margin-top: 0.85rem;
+    padding: 0.65rem 0.8rem;
+
+    background: var(--surface-blue);
+    color: var(--blue-dark);
+
+    border: 1px solid var(--blue-soft);
+    border-radius: 8px;
+
+    font-family:
+        ui-monospace,
+        SFMono-Regular,
+        Menlo,
+        Consolas,
+        monospace;
+
+    font-size: 0.84rem;
+    font-weight: 650;
+
+    overflow-x: auto;
+}
+
+
+/* =========================================================
+   STATUS BADGES
+   ========================================================= */
+
+.status-badge {
+    display: inline-flex;
+    align-items: center;
+
+    white-space: nowrap;
+
+    border-radius: 999px;
+
+    padding: 0.25rem 0.6rem;
+
+    font-size: 0.76rem;
+    font-weight: 750;
+
+    text-transform: capitalize;
+}
+
+.severity-high {
+    background: var(--red-soft);
+    color: var(--red);
+    border: 1px solid #fecaca;
+}
+
+.severity-medium {
+    background: var(--surface-orange);
+    color: var(--orange-dark);
+    border: 1px solid var(--orange-soft);
+}
+
+.severity-low {
+    background: var(--surface-green);
+    color: var(--green-dark);
+    border: 1px solid var(--green-soft);
+}
+
+
+/* =========================================================
+   FINDINGS / RISK
+   ========================================================= */
+
+.finding {
+    border-radius: var(--radius);
+
+    padding: 0.9rem 1rem;
+    margin: 0.6rem 0;
+
+    border: 1px solid var(--border);
+}
+
+.risk-high {
+    background: var(--red-soft);
+    border-color: #fecaca;
+    border-left: 4px solid var(--red);
+}
+
+
+/* =========================================================
+   REFERENCE SECTIONS
+   ========================================================= */
+
+.reference-card {
+    background: var(--surface-soft);
+
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+
+    padding: 0.9rem 1rem;
+}
+
+
+/* =========================================================
+   DIVIDERS
+   ========================================================= */
+
+hr {
+    border: 0 !important;
+    border-top: 1px solid var(--border) !important;
+    margin: 1.35rem 0 !important;
+}
+
+
+/* =========================================================
+   TABLES
+   ========================================================= */
+
+[data-testid="stDataFrame"] {
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    overflow: hidden;
+}
+
+/* =========================================================
+   TOOL NAME + MAIN CAPABILITY
+   ========================================================= */
+
+.tool-header {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin: 12px 0 4px 0;
+}
+
+.tool-name {
+    font-size: 1rem;
+    font-weight: 600;
+}
+
+.capability-badge {
+    display: inline-block;
+    padding: 4px 9px;
+    border-radius: 999px;
+    font-size: 0.75rem;
+    font-weight: 600;
+    line-height: 1.2;
+    background: #eef2ff;
+    border: 1px solid #c7d2fe;
+    color: #3730a3;
+}
+
+.capability-unmapped {
+    background: #f3f4f6;
+    border-color: #d1d5db;
+    color: #6b7280;
+}
+/* =========================================================
+   RESPONSIVE
+   ========================================================= */
+
+@media (max-width: 900px) {
+
+    [data-testid="stMainBlockContainer"] {
+        padding-left: 1rem;
+        padding-right: 1rem;
+    }
+
+    .main-title {
+        font-size: 1.65rem;
+    }
+
+    .stTabs [data-baseweb="tab"] {
+        padding: 0 0.65rem;
+        font-size: 0.82rem;
+    }
+}

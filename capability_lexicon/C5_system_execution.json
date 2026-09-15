@@ -1,0 +1,40 @@
+{
+  "capability_id": "C5",
+  "capability_name": "System Execution",
+  "schema_version": 1,
+  "notes": "Lexical rules for capability identification. Each rule is one regex signal searched in the tool's declared name + description (assumed_capability). Migrated verbatim from capability_normalizer.RULES; patterns were not reworded. Editing these files changes capability identification on the next analysis run.",
+  "confidence_values": [
+    "High",
+    "Medium",
+    "Low"
+  ],
+  "rules": [
+    {
+      "rule_id": "C5-R01",
+      "category": "lexical_regex",
+      "match_scope": "tool_name_and_description",
+      "pattern": "\\b(execute|exec|run(s|ning)?)\\b.*\\b(command|script|shell|program|code|process)s?\\b",
+      "reason": "Executes commands/scripts/code on the underlying system.",
+      "confidence": "High",
+      "enabled": true
+    },
+    {
+      "rule_id": "C5-R02",
+      "category": "lexical_regex",
+      "match_scope": "tool_name_and_description",
+      "pattern": "\\b(shell|subprocess|spawn|eval|interpreter)\\b",
+      "reason": "Provides command/code execution on the system.",
+      "confidence": "High",
+      "enabled": true
+    },
+    {
+      "rule_id": "C5-R03",
+      "category": "lexical_regex",
+      "match_scope": "tool_name_and_description",
+      "pattern": "\\bcommand[ _-]?line\\b|\\bterminal\\b",
+      "reason": "Interacts with the system command line.",
+      "confidence": "Medium",
+      "enabled": true
+    }
+  ]
+}

@@ -1,0 +1,492 @@
+{
+  "server_provenance": {
+    "filesystem": {
+      "server": "Filesystem",
+      "server_id": "@modelcontextprotocol/server-filesystem",
+      "version": "0.6.3",
+      "source_commit": "fd8248e56b822cc16a74b6610a88141fdfa09bd6",
+      "registration_source": "src/filesystem/index.ts"
+    },
+    "git": {
+      "server": "Git",
+      "server_id": "@modelcontextprotocol/git",
+      "version": "0.6.3",
+      "source_commit": "3bcfedd8e40212a1fd6e4bd3ab5abf459257f83b",
+      "registration_source": "src/git/src/mcp_server_git/server.py"
+    },
+    "memory": {
+      "server": "Memory",
+      "server_id": null,
+      "version": null,
+      "source_commit": "7b1170d1da1e36bc9f553f51e76e64cbfd652b3e",
+      "registration_source": "src/memory/index.ts"
+    },
+    "everything": {
+      "server": "Everything",
+      "server_id": null,
+      "version": null,
+      "source_commit": null,
+      "registration_source": "src/everything/tools"
+    }
+  },
+  "tools": {
+    "filesystem": [
+      {
+        "tool": "write_file",
+        "description": "Create/overwrite a file",
+        "readOnlyHint": false,
+        "destructiveHint": true,
+        "idempotentHint": true,
+        "openWorldHint": false,
+        "source": "index.ts"
+      },
+      {
+        "tool": "edit_file",
+        "description": "Replace exact text in a file",
+        "readOnlyHint": false,
+        "destructiveHint": true,
+        "idempotentHint": false,
+        "openWorldHint": false,
+        "source": "index.ts"
+      },
+      {
+        "tool": "create_directory",
+        "description": "Create a directory",
+        "readOnlyHint": false,
+        "destructiveHint": false,
+        "idempotentHint": true,
+        "openWorldHint": false,
+        "source": "index.ts"
+      },
+      {
+        "tool": "list_directory",
+        "description": "List directory contents",
+        "readOnlyHint": true,
+        "destructiveHint": null,
+        "idempotentHint": null,
+        "openWorldHint": false,
+        "source": "index.ts"
+      },
+      {
+        "tool": "list_directory_with_sizes",
+        "description": "List contents and sizes",
+        "readOnlyHint": true,
+        "destructiveHint": null,
+        "idempotentHint": null,
+        "openWorldHint": false,
+        "source": "index.ts"
+      },
+      {
+        "tool": "directory_tree",
+        "description": "Recursively show directory tree",
+        "readOnlyHint": true,
+        "destructiveHint": null,
+        "idempotentHint": null,
+        "openWorldHint": false,
+        "source": "index.ts"
+      },
+      {
+        "tool": "move_file",
+        "description": "Move/rename files or directories",
+        "readOnlyHint": false,
+        "destructiveHint": true,
+        "idempotentHint": false,
+        "openWorldHint": false,
+        "source": "index.ts"
+      },
+      {
+        "tool": "search_files",
+        "description": "Search files/directories by pattern",
+        "readOnlyHint": true,
+        "destructiveHint": null,
+        "idempotentHint": null,
+        "openWorldHint": false,
+        "source": "index.ts"
+      },
+      {
+        "tool": "get_file_info",
+        "description": "Retrieve file/directory metadata",
+        "readOnlyHint": true,
+        "destructiveHint": null,
+        "idempotentHint": null,
+        "openWorldHint": false,
+        "source": "index.ts"
+      },
+      {
+        "tool": "list_allowed_directories",
+        "description": "List accessible directories",
+        "readOnlyHint": true,
+        "destructiveHint": null,
+        "idempotentHint": null,
+        "openWorldHint": false,
+        "source": "index.ts"
+      }
+    ],
+    "git": [
+      {
+        "tool": "git_status",
+        "description": "Shows the working tree status",
+        "readOnlyHint": true,
+        "destructiveHint": false,
+        "idempotentHint": true,
+        "openWorldHint": false,
+        "source": "list_tools()"
+      },
+      {
+        "tool": "git_diff_unstaged",
+        "description": "Shows changes in the working directory that are not yet staged",
+        "readOnlyHint": true,
+        "destructiveHint": false,
+        "idempotentHint": true,
+        "openWorldHint": false,
+        "source": "list_tools()"
+      },
+      {
+        "tool": "git_diff_staged",
+        "description": "Shows changes that are staged for commit",
+        "readOnlyHint": true,
+        "destructiveHint": false,
+        "idempotentHint": true,
+        "openWorldHint": false,
+        "source": "list_tools()"
+      },
+      {
+        "tool": "git_diff",
+        "description": "Shows differences between branches or commits",
+        "readOnlyHint": true,
+        "destructiveHint": false,
+        "idempotentHint": true,
+        "openWorldHint": false,
+        "source": "list_tools()"
+      },
+      {
+        "tool": "git_commit",
+        "description": "Records changes to the repository",
+        "readOnlyHint": false,
+        "destructiveHint": false,
+        "idempotentHint": false,
+        "openWorldHint": false,
+        "source": "list_tools()"
+      },
+      {
+        "tool": "git_add",
+        "description": "Adds file contents to the staging area",
+        "readOnlyHint": false,
+        "destructiveHint": false,
+        "idempotentHint": true,
+        "openWorldHint": false,
+        "source": "list_tools()"
+      },
+      {
+        "tool": "git_reset",
+        "description": "Unstages all staged changes",
+        "readOnlyHint": false,
+        "destructiveHint": true,
+        "idempotentHint": true,
+        "openWorldHint": false,
+        "source": "list_tools()"
+      },
+      {
+        "tool": "git_log",
+        "description": "Shows the commit logs",
+        "readOnlyHint": true,
+        "destructiveHint": false,
+        "idempotentHint": true,
+        "openWorldHint": false,
+        "source": "list_tools()"
+      },
+      {
+        "tool": "git_create_branch",
+        "description": "Creates a new branch from an optional base branch",
+        "readOnlyHint": false,
+        "destructiveHint": false,
+        "idempotentHint": false,
+        "openWorldHint": false,
+        "source": "list_tools()"
+      },
+      {
+        "tool": "git_checkout",
+        "description": "Switches branches",
+        "readOnlyHint": false,
+        "destructiveHint": false,
+        "idempotentHint": false,
+        "openWorldHint": false,
+        "source": "list_tools()"
+      },
+      {
+        "tool": "git_show",
+        "description": "Shows the contents of a commit",
+        "readOnlyHint": true,
+        "destructiveHint": false,
+        "idempotentHint": true,
+        "openWorldHint": false,
+        "source": "list_tools()"
+      },
+      {
+        "tool": "git_branch",
+        "description": "List Git branches",
+        "readOnlyHint": true,
+        "destructiveHint": false,
+        "idempotentHint": true,
+        "openWorldHint": false,
+        "source": "list_tools()"
+      }
+    ],
+    "memory": [
+      {
+        "tool": "create_entities",
+        "description": "Create multiple new entities in the knowledge graph",
+        "readOnlyHint": false,
+        "destructiveHint": false,
+        "idempotentHint": false,
+        "openWorldHint": false,
+        "source": "registerTool()"
+      },
+      {
+        "tool": "create_relations",
+        "description": "Create multiple new relations between entities in the knowledge graph. Relations should be in active voice",
+        "readOnlyHint": false,
+        "destructiveHint": false,
+        "idempotentHint": false,
+        "openWorldHint": false,
+        "source": "registerTool()"
+      },
+      {
+        "tool": "add_observations",
+        "description": "Add new observations to existing entities in the knowledge graph",
+        "readOnlyHint": false,
+        "destructiveHint": false,
+        "idempotentHint": false,
+        "openWorldHint": false,
+        "source": "registerTool()"
+      },
+      {
+        "tool": "delete_entities",
+        "description": "Delete multiple entities and their associated relations from the knowledge graph",
+        "readOnlyHint": false,
+        "destructiveHint": true,
+        "idempotentHint": true,
+        "openWorldHint": false,
+        "source": "registerTool()"
+      },
+      {
+        "tool": "delete_observations",
+        "description": "Delete specific observations from entities in the knowledge graph",
+        "readOnlyHint": false,
+        "destructiveHint": true,
+        "idempotentHint": true,
+        "openWorldHint": false,
+        "source": "registerTool()"
+      },
+      {
+        "tool": "delete_relations",
+        "description": "Delete multiple relations from the knowledge graph",
+        "readOnlyHint": false,
+        "destructiveHint": true,
+        "idempotentHint": true,
+        "openWorldHint": false,
+        "source": "registerTool()"
+      },
+      {
+        "tool": "read_graph",
+        "description": "Read the entire knowledge graph",
+        "readOnlyHint": true,
+        "destructiveHint": false,
+        "idempotentHint": true,
+        "openWorldHint": false,
+        "source": "registerTool()"
+      },
+      {
+        "tool": "search_nodes",
+        "description": "Search for nodes in the knowledge graph based on a query",
+        "readOnlyHint": true,
+        "destructiveHint": false,
+        "idempotentHint": true,
+        "openWorldHint": false,
+        "source": "registerTool()"
+      },
+      {
+        "tool": "open_nodes",
+        "description": "Open specific nodes in the knowledge graph by their names",
+        "readOnlyHint": true,
+        "destructiveHint": false,
+        "idempotentHint": true,
+        "openWorldHint": false,
+        "source": "registerTool()"
+      }
+    ],
+    "everything": [
+      {
+        "tool": "echo",
+        "description": "Echoes back the input string",
+        "outputSchema": null,
+        "readOnlyHint": true,
+        "destructiveHint": false,
+        "idempotentHint": true,
+        "openWorldHint": false
+      },
+      {
+        "tool": "get-annotated-message",
+        "description": "Demonstrates how annotations can be used to provide metadata about content.",
+        "outputSchema": null,
+        "readOnlyHint": true,
+        "destructiveHint": false,
+        "idempotentHint": true,
+        "openWorldHint": false
+      },
+      {
+        "tool": "get-env",
+        "description": "Returns environment variables for debugging MCP server configuration",
+        "outputSchema": null,
+        "readOnlyHint": true,
+        "destructiveHint": false,
+        "idempotentHint": true,
+        "openWorldHint": false
+      },
+      {
+        "tool": "get-resource-links",
+        "description": "Returns resource links that reference different types of resources",
+        "outputSchema": null,
+        "readOnlyHint": true,
+        "destructiveHint": false,
+        "idempotentHint": true,
+        "openWorldHint": false
+      },
+      {
+        "tool": "get-resource-reference",
+        "description": "Returns a resource reference that can be used by MCP clients",
+        "outputSchema": null,
+        "readOnlyHint": true,
+        "destructiveHint": false,
+        "idempotentHint": true,
+        "openWorldHint": false
+      },
+      {
+        "tool": "get-roots-list",
+        "description": "Lists the current MCP roots provided by the client",
+        "outputSchema": null,
+        "readOnlyHint": true,
+        "destructiveHint": false,
+        "idempotentHint": true,
+        "openWorldHint": false
+      },
+      {
+        "tool": "get-structured-content",
+        "description": "Returns structured content along with an output schema",
+        "outputSchema": "Declared",
+        "readOnlyHint": true,
+        "destructiveHint": false,
+        "idempotentHint": true,
+        "openWorldHint": false
+      },
+      {
+        "tool": "get-sum",
+        "description": "Returns the sum of two numbers",
+        "outputSchema": null,
+        "readOnlyHint": true,
+        "destructiveHint": false,
+        "idempotentHint": true,
+        "openWorldHint": false
+      },
+      {
+        "tool": "get-tiny-image",
+        "description": "Returns a tiny MCP logo image",
+        "outputSchema": null,
+        "readOnlyHint": true,
+        "destructiveHint": false,
+        "idempotentHint": true,
+        "openWorldHint": false
+      },
+      {
+        "tool": "gzip-file-as-resource",
+        "description": "Compresses a file using gzip and returns a resource or resource link",
+        "outputSchema": null,
+        "readOnlyHint": false,
+        "destructiveHint": false,
+        "idempotentHint": true,
+        "openWorldHint": true
+      },
+      {
+        "tool": "toggle-simulated-logging",
+        "description": "Toggles simulated random-level logging on or off",
+        "outputSchema": null,
+        "readOnlyHint": false,
+        "destructiveHint": false,
+        "idempotentHint": false,
+        "openWorldHint": false
+      },
+      {
+        "tool": "toggle-subscriber-updates",
+        "description": "Toggles simulated resource subscription updates on or off",
+        "outputSchema": null,
+        "readOnlyHint": false,
+        "destructiveHint": false,
+        "idempotentHint": false,
+        "openWorldHint": false
+      },
+      {
+        "tool": "trigger-long-running-operation",
+        "description": "Demonstrates a long-running operation with progress updates",
+        "outputSchema": null,
+        "readOnlyHint": true,
+        "destructiveHint": false,
+        "idempotentHint": true,
+        "openWorldHint": false
+      },
+      {
+        "tool": "trigger-elicitation-request",
+        "description": "Triggers a request from the server for user elicitation",
+        "outputSchema": null,
+        "readOnlyHint": false,
+        "destructiveHint": false,
+        "idempotentHint": false,
+        "openWorldHint": false
+      },
+      {
+        "tool": "trigger-elicitation-request-async",
+        "description": "Triggers an asynchronous elicitation request",
+        "outputSchema": null,
+        "readOnlyHint": false,
+        "destructiveHint": false,
+        "idempotentHint": false,
+        "openWorldHint": false
+      },
+      {
+        "tool": "trigger-sampling-request",
+        "description": "Triggers a request from the server for LLM sampling",
+        "outputSchema": null,
+        "readOnlyHint": false,
+        "destructiveHint": false,
+        "idempotentHint": false,
+        "openWorldHint": true
+      },
+      {
+        "tool": "trigger-sampling-request-async",
+        "description": "Triggers an asynchronous sampling request",
+        "outputSchema": null,
+        "readOnlyHint": false,
+        "destructiveHint": false,
+        "idempotentHint": false,
+        "openWorldHint": true
+      },
+      {
+        "tool": "simulate-research-query",
+        "description": "Simulates a deep research operation",
+        "outputSchema": null,
+        "readOnlyHint": false,
+        "destructiveHint": false,
+        "idempotentHint": false,
+        "openWorldHint": false
+      },
+      {
+        "tool": "trigger-url-elicitation",
+        "description": "Triggers URL elicitation for a browser flow",
+        "outputSchema": null,
+        "readOnlyHint": false,
+        "destructiveHint": false,
+        "idempotentHint": false,
+        "openWorldHint": true
+      }
+    ]
+  }
+}

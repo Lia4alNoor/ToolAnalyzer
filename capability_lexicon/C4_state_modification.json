@@ -1,0 +1,76 @@
+{
+  "capability_id": "C4",
+  "capability_name": "State Modification",
+  "schema_version": 1,
+  "notes": "Lexical rules for capability identification. Each rule is one regex signal searched in the tool's declared name + description (assumed_capability). Migrated verbatim from capability_normalizer.RULES; patterns were not reworded. Editing these files changes capability identification on the next analysis run.",
+  "confidence_values": [
+    "High",
+    "Medium",
+    "Low"
+  ],
+  "rules": [
+    {
+      "rule_id": "C4-R01",
+      "category": "lexical_regex",
+      "match_scope": "tool_name_and_description",
+      "pattern": "\\b(write|overwrite|creat(e|es|ing)|edit|modif(y|ies)|updat(e|es|ing)|replace)\\b",
+      "reason": "Creates or modifies persistent state (files, records, settings).",
+      "confidence": "High",
+      "enabled": true
+    },
+    {
+      "rule_id": "C4-R02",
+      "category": "lexical_regex",
+      "match_scope": "tool_name_and_description",
+      "pattern": "\\b(delete|remove|drop|destroy|clear|truncate)\\b",
+      "reason": "Deletes or destroys persistent state.",
+      "confidence": "High",
+      "enabled": true
+    },
+    {
+      "rule_id": "C4-R03",
+      "category": "lexical_regex",
+      "match_scope": "tool_name_and_description",
+      "pattern": "\\b(move|rename)\\b",
+      "reason": "Relocates/renames persistent objects (state change).",
+      "confidence": "Medium",
+      "enabled": true
+    },
+    {
+      "rule_id": "C4-R04",
+      "category": "lexical_regex",
+      "match_scope": "tool_name_and_description",
+      "pattern": "\\b(toggle|set|enable|disable|configure)\\b",
+      "reason": "Changes server-side settings or persistent flags.",
+      "confidence": "Medium",
+      "enabled": true
+    },
+    {
+      "rule_id": "C4-R05",
+      "category": "lexical_regex",
+      "match_scope": "tool_name_and_description",
+      "pattern": "\\bgit[ _-]?(commit|add|reset|checkout|branch|merge|init)\\b|\\b(commit|stage)s?\\b.*\\b(change|file|snapshot)s?\\b",
+      "reason": "Modifies repository state persistently.",
+      "confidence": "Medium",
+      "enabled": true
+    },
+    {
+      "rule_id": "C4-R06",
+      "category": "lexical_regex",
+      "match_scope": "tool_name_and_description",
+      "pattern": "\\b(add|insert|append|store|save|record)\\b",
+      "reason": "Adds new persistent records/content.",
+      "confidence": "Medium",
+      "enabled": true
+    },
+    {
+      "rule_id": "C4-R07",
+      "category": "lexical_regex",
+      "match_scope": "tool_name_and_description",
+      "pattern": "\\b(compress|gzip|zip|archive|pack)(es|ed|ing)?\\b",
+      "reason": "Produces new file artifacts (compressed/archived output is persistent state).",
+      "confidence": "Medium",
+      "enabled": true
+    }
+  ]
+}

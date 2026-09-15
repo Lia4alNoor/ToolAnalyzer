@@ -1,0 +1,112 @@
+{
+  "capability_id": "C2",
+  "capability_name": "Sensitive Data Access",
+  "schema_version": 1,
+  "notes": "Lexical rules for capability identification. Each rule is one regex signal searched in the tool's declared name + description (assumed_capability). Migrated verbatim from capability_normalizer.RULES; patterns were not reworded. Editing these files changes capability identification on the next analysis run.",
+  "confidence_values": [
+    "High",
+    "Medium",
+    "Low"
+  ],
+  "rules": [
+    {
+      "rule_id": "C2-R01",
+      "category": "lexical_regex",
+      "match_scope": "tool_name_and_description",
+      "pattern": "\\bread(s|ing)?[ _-]?(a[ _-])?(file|files|mail|message|document)\\b",
+      "reason": "Reads file/mail contents that may be private or sensitive.",
+      "confidence": "Medium",
+      "enabled": true
+    },
+    {
+      "rule_id": "C2-R02",
+      "category": "lexical_regex",
+      "match_scope": "tool_name_and_description",
+      "pattern": "\\b(env|environment)([ _-]?variable)?s?\\b",
+      "reason": "Exposes environment/configuration values that may contain secrets.",
+      "confidence": "Medium",
+      "enabled": true
+    },
+    {
+      "rule_id": "C2-R03",
+      "category": "lexical_regex",
+      "match_scope": "tool_name_and_description",
+      "pattern": "\\b(secret|credential|token|password|api[ _-]?key)s?\\b",
+      "reason": "Directly references secrets or credentials.",
+      "confidence": "High",
+      "enabled": true
+    },
+    {
+      "rule_id": "C2-R04",
+      "category": "lexical_regex",
+      "match_scope": "tool_name_and_description",
+      "pattern": "\\b(list|read|show|display)[a-z_ /-]*(director(y|ies)|file|files|folder)",
+      "reason": "Enumerates or reads local files/directories (user-specific data).",
+      "confidence": "Medium",
+      "enabled": true
+    },
+    {
+      "rule_id": "C2-R05",
+      "category": "lexical_regex",
+      "match_scope": "tool_name_and_description",
+      "pattern": "\\b(file|director(y|ies))[a-z_ /-]*(metadata|info|tree|sizes)\\b",
+      "reason": "Retrieves local file/directory structure and metadata.",
+      "confidence": "Medium",
+      "enabled": true
+    },
+    {
+      "rule_id": "C2-R06",
+      "category": "lexical_regex",
+      "match_scope": "tool_name_and_description",
+      "pattern": "\\b(search|find)[a-z_ /-]*(file|files|director(y|ies)|entit(y|ies)|node)s?\\b",
+      "reason": "Searches local data stores for user-specific content.",
+      "confidence": "Medium",
+      "enabled": true
+    },
+    {
+      "rule_id": "C2-R07",
+      "category": "lexical_regex",
+      "match_scope": "tool_name_and_description",
+      "pattern": "\\b(knowledge[ _-]?graph|memory|observation)s?\\b.*\\b(read|open|search|retriev)",
+      "reason": "Reads stored user memory/knowledge-graph data.",
+      "confidence": "Medium",
+      "enabled": true
+    },
+    {
+      "rule_id": "C2-R08",
+      "category": "lexical_regex",
+      "match_scope": "tool_name_and_description",
+      "pattern": "\\b(read|open|search)[a-z_ /-]*(graph|node|memor(y|ies))s?\\b",
+      "reason": "Reads stored user memory/knowledge-graph data.",
+      "confidence": "Medium",
+      "enabled": true
+    },
+    {
+      "rule_id": "C2-R09",
+      "category": "lexical_regex",
+      "match_scope": "tool_name_and_description",
+      "pattern": "\\bgit[ _-]?(log|show|diff|status|blame)",
+      "reason": "Reads repository history/contents which may contain sensitive data.",
+      "confidence": "Low",
+      "enabled": true
+    },
+    {
+      "rule_id": "C2-R10",
+      "category": "lexical_regex",
+      "match_scope": "tool_name_and_description",
+      "pattern": "\\b(commit )?histor(y|ies)\\b|\\bdiffs?\\b|\\bshows? changes\\b|\\bworking tree status\\b",
+      "reason": "Reads repository history/contents which may contain sensitive data.",
+      "confidence": "Low",
+      "enabled": true
+    },
+    {
+      "rule_id": "C2-R11",
+      "category": "lexical_regex",
+      "match_scope": "tool_name_and_description",
+      "pattern": "\\ballowed[ _-]?directories\\b",
+      "reason": "Reveals which local directories are accessible.",
+      "confidence": "Low",
+      "enabled": true
+    }
+  ]
+}

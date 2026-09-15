@@ -1,0 +1,92 @@
+[
+  {
+    "tool": "write_file",
+    "description": "Create/overwrite a file",
+    "readOnlyHint": false,
+    "destructiveHint": true,
+    "idempotentHint": true,
+    "openWorldHint": false,
+    "source": "index.ts"
+  },
+  {
+    "tool": "edit_file",
+    "description": "Replace exact text in a file",
+    "readOnlyHint": false,
+    "destructiveHint": true,
+    "idempotentHint": false,
+    "openWorldHint": false,
+    "source": "index.ts"
+  },
+  {
+    "tool": "create_directory",
+    "description": "Create a directory",
+    "readOnlyHint": false,
+    "destructiveHint": false,
+    "idempotentHint": true,
+    "openWorldHint": false,
+    "source": "index.ts"
+  },
+  {
+    "tool": "list_directory",
+    "description": "List directory contents",
+    "readOnlyHint": true,
+    "destructiveHint": null,
+    "idempotentHint": null,
+    "openWorldHint": false,
+    "source": "index.ts"
+  },
+  {
+    "tool": "list_directory_with_sizes",
+    "description": "List contents and sizes",
+    "readOnlyHint": true,
+    "destructiveHint": null,
+    "idempotentHint": null,
+    "openWorldHint": false,
+    "source": "index.ts"
+  },
+  {
+    "tool": "directory_tree",
+    "description": "Recursively show directory tree",
+    "readOnlyHint": true,
+    "destructiveHint": null,
+    "idempotentHint": null,
+    "openWorldHint": false,
+    "source": "index.ts"
+  },
+  {
+    "tool": "move_file",
+    "description": "Move/rename files or directories",
+    "readOnlyHint": false,
+    "destructiveHint": true,
+    "idempotentHint": false,
+    "openWorldHint": false,
+    "source": "index.ts"
+  },
+  {
+    "tool": "search_files",
+    "description": "Search files/directories by pattern",
+    "readOnlyHint": true,
+    "destructiveHint": null,
+    "idempotentHint": null,
+    "openWorldHint": false,
+    "source": "index.ts"
+  },
+  {
+    "tool": "get_file_info",
+    "description": "Retrieve file/directory metadata",
+    "readOnlyHint": true,
+    "destructiveHint": null,
+    "idempotentHint": null,
+    "openWorldHint": false,
+    "source": "index.ts"
+  },
+  {
+    "tool": "list_allowed_directories",
+    "description": "List accessible directories",
+    "readOnlyHint": true,
+    "destructiveHint": null,
+    "idempotentHint": null,
+    "openWorldHint": false,
+    "source": "index.ts"
+  }
+]

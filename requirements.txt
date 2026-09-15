@@ -1,0 +1,16 @@
+# Agent Pre-Deployment Capability & Risk Analyzer
+#
+# Run with:
+#   pip install -r requirements.txt
+#   python -m streamlit run app.py
+#
+# The MCP metadata retriever (modules/mcp_toolinfo_Retriever.py) speaks
+# JSON-RPC over stdio / HTTP using only the Python standard library, so no
+# MCP SDK is required to use the "Connect to MCP Server" option.
+
+streamlit>=1.31
+pandas>=2.0
+
+# Optional: only needed if you use Module 10 (LLM-assisted threat curation)
+# with OpenAI instead of a local Ollama model.
+# openai>=1.0

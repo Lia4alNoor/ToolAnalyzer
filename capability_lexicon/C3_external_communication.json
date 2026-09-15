@@ -1,0 +1,76 @@
+{
+  "capability_id": "C3",
+  "capability_name": "External Communication",
+  "schema_version": 1,
+  "notes": "Lexical rules for capability identification. Each rule is one regex signal searched in the tool's declared name + description (assumed_capability). Migrated verbatim from capability_normalizer.RULES; patterns were not reworded. Editing these files changes capability identification on the next analysis run.",
+  "confidence_values": [
+    "High",
+    "Medium",
+    "Low"
+  ],
+  "rules": [
+    {
+      "rule_id": "C3-R01",
+      "category": "lexical_regex",
+      "match_scope": "tool_name_and_description",
+      "pattern": "\\bsend(s|ing)?[ _-]?(mail|email|message|notification|data)?\\b",
+      "reason": "Sends/transmits data to an external recipient or endpoint.",
+      "confidence": "High",
+      "enabled": true
+    },
+    {
+      "rule_id": "C3-R02",
+      "category": "lexical_regex",
+      "match_scope": "tool_name_and_description",
+      "pattern": "\\b(email|e-mail|mail)\\b.*\\b(send|compose|deliver)\\b",
+      "reason": "Sends email to external recipients.",
+      "confidence": "High",
+      "enabled": true
+    },
+    {
+      "rule_id": "C3-R03",
+      "category": "lexical_regex",
+      "match_scope": "tool_name_and_description",
+      "pattern": "\\b(publish|post|upload|transmit|share|submit)\\b",
+      "reason": "Publishes/uploads data to an external service.",
+      "confidence": "High",
+      "enabled": true
+    },
+    {
+      "rule_id": "C3-R04",
+      "category": "lexical_regex",
+      "match_scope": "tool_name_and_description",
+      "pattern": "\\bcreate[ _-]?issue\\b",
+      "reason": "Creates an issue on an external tracker (data leaves the system).",
+      "confidence": "High",
+      "enabled": true
+    },
+    {
+      "rule_id": "C3-R05",
+      "category": "lexical_regex",
+      "match_scope": "tool_name_and_description",
+      "pattern": "\\bpush(es|ing)?\\b",
+      "reason": "Pushes data/commits to a remote endpoint.",
+      "confidence": "High",
+      "enabled": true
+    },
+    {
+      "rule_id": "C3-R06",
+      "category": "lexical_regex",
+      "match_scope": "tool_name_and_description",
+      "pattern": "\\b(sampling[ _-]?request|elicitation)\\b",
+      "reason": "Requests interaction/content from an external user or model.",
+      "confidence": "High",
+      "enabled": true
+    },
+    {
+      "rule_id": "C3-R07",
+      "category": "lexical_regex",
+      "match_scope": "tool_name_and_description",
+      "pattern": "\\b(notify|notification|webhook|broadcast)\\b",
+      "reason": "Emits notifications to external listeners.",
+      "confidence": "Medium",
+      "enabled": true
+    }
+  ]
+}

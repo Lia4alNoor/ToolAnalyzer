@@ -1,0 +1,29 @@
+[
+  {
+    "tool": "fetch",
+    "description": "Fetches a URL from the internet and retrieves external web content",
+    "readOnlyHint": true,
+    "destructiveHint": false,
+    "idempotentHint": true,
+    "openWorldHint": true,
+    "source": "test"
+  },
+  {
+    "tool": "read_mail",
+    "description": "Reads messages from the user's mailbox",
+    "readOnlyHint": true,
+    "destructiveHint": false,
+    "idempotentHint": true,
+    "openWorldHint": false,
+    "source": "test"
+  },
+  {
+    "tool": "send_mail",
+    "description": "Sends an email to an external recipient",
+    "readOnlyHint": false,
+    "destructiveHint": false,
+    "idempotentHint": false,
+    "openWorldHint": true,
+    "source": "test"
+  }
+]

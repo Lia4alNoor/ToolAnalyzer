@@ -1,0 +1,58 @@
+{
+  "capability_id": "C1",
+  "capability_name": "External Data Ingestion",
+  "schema_version": 1,
+  "notes": "Lexical rules for capability identification. Each rule is one regex signal searched in the tool's declared name + description (assumed_capability). Migrated verbatim from capability_normalizer.RULES; patterns were not reworded. Editing these files changes capability identification on the next analysis run.",
+  "confidence_values": [
+    "High",
+    "Medium",
+    "Low"
+  ],
+  "rules": [
+    {
+      "rule_id": "C1-R01",
+      "category": "lexical_regex",
+      "match_scope": "tool_name_and_description",
+      "pattern": "\\bfetch(es|ing)?\\b",
+      "reason": "Fetches content from an external source into the agent context.",
+      "confidence": "High",
+      "enabled": true
+    },
+    {
+      "rule_id": "C1-R02",
+      "category": "lexical_regex",
+      "match_scope": "tool_name_and_description",
+      "pattern": "\\b(download|crawl|scrape|browse)\\b",
+      "reason": "Retrieves external/web content into the agent context.",
+      "confidence": "High",
+      "enabled": true
+    },
+    {
+      "rule_id": "C1-R03",
+      "category": "lexical_regex",
+      "match_scope": "tool_name_and_description",
+      "pattern": "\\b(url|web|http[s]?|internet)\\b",
+      "reason": "References external web/URL content that can enter the agent.",
+      "confidence": "Medium",
+      "enabled": true
+    },
+    {
+      "rule_id": "C1-R04",
+      "category": "lexical_regex",
+      "match_scope": "tool_name_and_description",
+      "pattern": "\\b(search|query)\\b.*\\b(web|internet|external source|remote source)\\b",
+      "reason": "Retrieves information from an external source into the agent context.",
+      "confidence": "Medium",
+      "enabled": true
+    },
+    {
+      "rule_id": "C1-R05",
+      "category": "lexical_regex",
+      "match_scope": "tool_name_and_description",
+      "pattern": "\\bclone\\b",
+      "reason": "Clones a remote repository, ingesting external content.",
+      "confidence": "Medium",
+      "enabled": true
+    }
+  ]
+}

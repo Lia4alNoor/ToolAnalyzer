@@ -1,0 +1,58 @@
+{
+  "capability_id": "C6",
+  "capability_name": "Physical Actuation",
+  "schema_version": 1,
+  "notes": "Lexical rules for capability identification. Each rule is one regex signal searched in the tool's declared name + description (assumed_capability). Migrated verbatim from capability_normalizer.RULES; patterns were not reworded. Editing these files changes capability identification on the next analysis run.",
+  "confidence_values": [
+    "High",
+    "Medium",
+    "Low"
+  ],
+  "rules": [
+    {
+      "rule_id": "C6-R01",
+      "category": "lexical_regex",
+      "match_scope": "tool_name_and_description",
+      "pattern": "\\b(unlock|lock)\\b.*\\b(door|smart)\\b|\\bsmart[ _-]?lock\\b",
+      "reason": "Controls a physical lock (real-world actuation).",
+      "confidence": "High",
+      "enabled": true
+    },
+    {
+      "rule_id": "C6-R02",
+      "category": "lexical_regex",
+      "match_scope": "tool_name_and_description",
+      "pattern": "\\b(thermostat|actuat(e|or)|robot|drone|motor|relay|iot device)\\b",
+      "reason": "Controls hardware/IoT devices causing real-world changes.",
+      "confidence": "High",
+      "enabled": true
+    },
+    {
+      "rule_id": "C6-R03",
+      "category": "lexical_regex",
+      "match_scope": "tool_name_and_description",
+      "pattern": "\\b(device|hardware|physical)\\b.*\\b(control|operate|turn (on|off)|activate)\\b",
+      "reason": "Operates physical devices.",
+      "confidence": "Medium",
+      "enabled": true
+    },
+    {
+  "rule_id": "C6-R04",
+  "category": "lexical_regex",
+  "match_scope": "tool_name_and_description",
+  "pattern": "\\b(lights?|lock|climate|vacuum|cover|siren|fan|switch|thermostat|garage|alarm|camera)s?[_-]?control\\b",
+  "reason": "Tool name follows the common smart-home/IoT domain-control naming convention (e.g. lights_control, climate_control), even when the description is a terse feature list rather than a sentence.",
+  "confidence": "High",
+  "enabled": true
+},
+{
+  "rule_id": "C6-R05",
+  "category": "lexical_regex",
+  "match_scope": "tool_name_and_description",
+  "pattern": "\\b(brightness|color[ _-]?temp|rgb|fan speed|tilt|dock(ing)?|open/close|hvac)\\b",
+  "reason": "Terse product-style feature vocabulary real smart-home integrations use to describe physical device state (brightness/color for lights, tilt/open-close for covers, dock/fan-speed for vacuums, HVAC for climate).",
+  "confidence": "Medium",
+  "enabled": true
+}
+  ]
+}

@@ -1,0 +1,30 @@
+{
+  "filesystem": {
+    "server": "Filesystem",
+    "server_id": "@modelcontextprotocol/server-filesystem",
+    "version": "0.6.3",
+    "source_commit": "fd8248e56b822cc16a74b6610a88141fdfa09bd6",
+    "registration_source": "src/filesystem/index.ts"
+  },
+  "git": {
+    "server": "Git",
+    "server_id": "@modelcontextprotocol/git",
+    "version": "0.6.3",
+    "source_commit": "3bcfedd8e40212a1fd6e4bd3ab5abf459257f83b",
+    "registration_source": "src/git/src/mcp_server_git/server.py"
+  },
+  "memory": {
+    "server": "Memory",
+    "server_id": null,
+    "version": null,
+    "source_commit": "7b1170d1da1e36bc9f553f51e76e64cbfd652b3e",
+    "registration_source": "src/memory/index.ts"
+  },
+  "everything": {
+    "server": "Everything",
+    "server_id": null,
+    "version": null,
+    "source_commit": null,
+    "registration_source": "src/everything/tools"
+  }
+}

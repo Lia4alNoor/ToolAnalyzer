@@ -1,0 +1,83 @@
+[
+  {
+    "tool": "create_entities",
+    "description": "Create multiple new entities in the knowledge graph",
+    "readOnlyHint": false,
+    "destructiveHint": false,
+    "idempotentHint": false,
+    "openWorldHint": false,
+    "source": "registerTool()"
+  },
+  {
+    "tool": "create_relations",
+    "description": "Create multiple new relations between entities in the knowledge graph. Relations should be in active voice",
+    "readOnlyHint": false,
+    "destructiveHint": false,
+    "idempotentHint": false,
+    "openWorldHint": false,
+    "source": "registerTool()"
+  },
+  {
+    "tool": "add_observations",
+    "description": "Add new observations to existing entities in the knowledge graph",
+    "readOnlyHint": false,
+    "destructiveHint": false,
+    "idempotentHint": false,
+    "openWorldHint": false,
+    "source": "registerTool()"
+  },
+  {
+    "tool": "delete_entities",
+    "description": "Delete multiple entities and their associated relations from the knowledge graph",
+    "readOnlyHint": false,
+    "destructiveHint": true,
+    "idempotentHint": true,
+    "openWorldHint": false,
+    "source": "registerTool()"
+  },
+  {
+    "tool": "delete_observations",
+    "description": "Delete specific observations from entities in the knowledge graph",
+    "readOnlyHint": false,
+    "destructiveHint": true,
+    "idempotentHint": true,
+    "openWorldHint": false,
+    "source": "registerTool()"
+  },
+  {
+    "tool": "delete_relations",
+    "description": "Delete multiple relations from the knowledge graph",
+    "readOnlyHint": false,
+    "destructiveHint": true,
+    "idempotentHint": true,
+    "openWorldHint": false,
+    "source": "registerTool()"
+  },
+  {
+    "tool": "read_graph",
+    "description": "Read the entire knowledge graph",
+    "readOnlyHint": true,
+    "destructiveHint": false,
+    "idempotentHint": true,
+    "openWorldHint": false,
+    "source": "registerTool()"
+  },
+  {
+    "tool": "search_nodes",
+    "description": "Search for nodes in the knowledge graph based on a query",
+    "readOnlyHint": true,
+    "destructiveHint": false,
+    "idempotentHint": true,
+    "openWorldHint": false,
+    "source": "registerTool()"
+  },
+  {
+    "tool": "open_nodes",
+    "description": "Open specific nodes in the knowledge graph by their names",
+    "readOnlyHint": true,
+    "destructiveHint": false,
+    "idempotentHint": true,
+    "openWorldHint": false,
+    "source": "registerTool()"
+  }
+]

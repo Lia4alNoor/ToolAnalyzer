@@ -1,0 +1,173 @@
+[
+  {
+    "tool": "echo",
+    "description": "Echoes back the input string",
+    "outputSchema": null,
+    "readOnlyHint": true,
+    "destructiveHint": false,
+    "idempotentHint": true,
+    "openWorldHint": false
+  },
+  {
+    "tool": "get-annotated-message",
+    "description": "Demonstrates how annotations can be used to provide metadata about content.",
+    "outputSchema": null,
+    "readOnlyHint": true,
+    "destructiveHint": false,
+    "idempotentHint": true,
+    "openWorldHint": false
+  },
+  {
+    "tool": "get-env",
+    "description": "Returns environment variables for debugging MCP server configuration",
+    "outputSchema": null,
+    "readOnlyHint": true,
+    "destructiveHint": false,
+    "idempotentHint": true,
+    "openWorldHint": false
+  },
+  {
+    "tool": "get-resource-links",
+    "description": "Returns resource links that reference different types of resources",
+    "outputSchema": null,
+    "readOnlyHint": true,
+    "destructiveHint": false,
+    "idempotentHint": true,
+    "openWorldHint": false
+  },
+  {
+    "tool": "get-resource-reference",
+    "description": "Returns a resource reference that can be used by MCP clients",
+    "outputSchema": null,
+    "readOnlyHint": true,
+    "destructiveHint": false,
+    "idempotentHint": true,
+    "openWorldHint": false
+  },
+  {
+    "tool": "get-roots-list",
+    "description": "Lists the current MCP roots provided by the client",
+    "outputSchema": null,
+    "readOnlyHint": true,
+    "destructiveHint": false,
+    "idempotentHint": true,
+    "openWorldHint": false
+  },
+  {
+    "tool": "get-structured-content",
+    "description": "Returns structured content along with an output schema",
+    "outputSchema": "Declared",
+    "readOnlyHint": true,
+    "destructiveHint": false,
+    "idempotentHint": true,
+    "openWorldHint": false
+  },
+  {
+    "tool": "get-sum",
+    "description": "Returns the sum of two numbers",
+    "outputSchema": null,
+    "readOnlyHint": true,
+    "destructiveHint": false,
+    "idempotentHint": true,
+    "openWorldHint": false
+  },
+  {
+    "tool": "get-tiny-image",
+    "description": "Returns a tiny MCP logo image",
+    "outputSchema": null,
+    "readOnlyHint": true,
+    "destructiveHint": false,
+    "idempotentHint": true,
+    "openWorldHint": false
+  },
+  {
+    "tool": "gzip-file-as-resource",
+    "description": "Compresses a file using gzip and returns a resource or resource link",
+    "outputSchema": null,
+    "readOnlyHint": false,
+    "destructiveHint": false,
+    "idempotentHint": true,
+    "openWorldHint": true
+  },
+  {
+    "tool": "toggle-simulated-logging",
+    "description": "Toggles simulated random-level logging on or off",
+    "outputSchema": null,
+    "readOnlyHint": false,
+    "destructiveHint": false,
+    "idempotentHint": false,
+    "openWorldHint": false
+  },
+  {
+    "tool": "toggle-subscriber-updates",
+    "description": "Toggles simulated resource subscription updates on or off",
+    "outputSchema": null,
+    "readOnlyHint": false,
+    "destructiveHint": false,
+    "idempotentHint": false,
+    "openWorldHint": false
+  },
+  {
+    "tool": "trigger-long-running-operation",
+    "description": "Demonstrates a long-running operation with progress updates",
+    "outputSchema": null,
+    "readOnlyHint": true,
+    "destructiveHint": false,
+    "idempotentHint": true,
+    "openWorldHint": false
+  },
+  {
+    "tool": "trigger-elicitation-request",
+    "description": "Triggers a request from the server for user elicitation",
+    "outputSchema": null,
+    "readOnlyHint": false,
+    "destructiveHint": false,
+    "idempotentHint": false,
+    "openWorldHint": false
+  },
+  {
+    "tool": "trigger-elicitation-request-async",
+    "description": "Triggers an asynchronous elicitation request",
+    "outputSchema": null,
+    "readOnlyHint": false,
+    "destructiveHint": false,
+    "idempotentHint": false,
+    "openWorldHint": false
+  },
+  {
+    "tool": "trigger-sampling-request",
+    "description": "Triggers a request from the server for LLM sampling",
+    "outputSchema": null,
+    "readOnlyHint": false,
+    "destructiveHint": false,
+    "idempotentHint": false,
+    "openWorldHint": true
+  },
+  {
+    "tool": "trigger-sampling-request-async",
+    "description": "Triggers an asynchronous sampling request",
+    "outputSchema": null,
+    "readOnlyHint": false,
+    "destructiveHint": false,
+    "idempotentHint": false,
+    "openWorldHint": true
+  },
+  {
+    "tool": "simulate-research-query",
+    "description": "Simulates a deep research operation",
+    "outputSchema": null,
+    "readOnlyHint": false,
+    "destructiveHint": false,
+    "idempotentHint": false,
+    "openWorldHint": false
+  },
+  {
+    "tool": "trigger-url-elicitation",
+    "description": "Triggers URL elicitation for a browser flow",
+    "outputSchema": null,
+    "readOnlyHint": false,
+    "destructiveHint": false,
+    "idempotentHint": false,
+    "openWorldHint": true
+  }
+]
