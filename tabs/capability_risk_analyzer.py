@@ -16,9 +16,6 @@ from modules.modules import (
     module_9_report_generation
 )
 
-# New in this revision. The TDP scanner and the MCP metadata retriever are
-# deliberately kept outside the capability pipeline package: capability
-# identification (Modules 1-3) is unchanged by them.
 from modules import (
     mcp_toolinfo_Retriever,
     module_tdp_scanner,
@@ -28,8 +25,6 @@ from modules.capability_lexicon_loader import LexiconError
 
 from pathlib import Path
 
-# Resolved relative to the project so the preloaded dataset works on any
-# machine (the previous absolute Windows path only existed on one laptop).
 DEFAULT_FILE = (
     Path(__file__).resolve().parent.parent
     / "data"
@@ -39,7 +34,6 @@ DEFAULT_FILE = (
 INPUT_MODE_UPLOAD = "Upload JSON"
 INPUT_MODE_MCP = "Connect to MCP Server"
 CAPABILITY_SEED = module_5_ontology_database.CAPABILITY_SEED
-
 
 CAPABILITY_INFO = {
     cap_id: {
@@ -52,7 +46,6 @@ CAPABILITY_INFO = {
 
 
 def describe_capability(cap_id):
-    """Format capability ID with name. E.g., 'C4 (State Modification)'."""
     info = CAPABILITY_INFO.get(cap_id)
 
     return (
@@ -63,7 +56,6 @@ def describe_capability(cap_id):
 
 
 def describe_sequence(cap_sequence):
-    """Format capability sequence with arrows. E.g., 'C1 → C2 → C3'."""
     if not isinstance(cap_sequence, list):
         return str(cap_sequence)
 
@@ -72,66 +64,378 @@ def describe_sequence(cap_sequence):
         for step in cap_sequence
     )
 
+
+def apply_manual_decision_to_tool(
+    tool,
+    capabilities,
+    decision_reason=None,
+):
+    if not isinstance(tool, dict):
+        return
+
+    capabilities = list(
+        dict.fromkeys(capabilities or [])
+    )
+
+    allowed_capabilities = {
+        cap_id
+        for cap_id, _name, _definition, _risk in CAPABILITY_SEED
+    }
+
+    invalid = set(capabilities) - allowed_capabilities
+
+    if invalid:
+        raise ValueError(
+            "Invalid capability IDs: "
+            + ", ".join(sorted(invalid))
+        )
+
+    mapping = tool.setdefault(
+        "mapping",
+        {}
+    )
+
+    mapping["mappings"] = [
+        {
+            "capability_id": cap_id,
+            "confidence": 1.0,
+            "reason": (
+                decision_reason
+                or "Human-validated capability assignment."
+            ),
+            "normalized_match": None,
+            "source": "manual",
+        }
+        for cap_id in capabilities
+    ]
+
+    mapping["is_ambiguous"] = False
+
+    if capabilities:
+        mapping["mapping_reason"] = (
+            "Human-validated capability assignment."
+        )
+    else:
+        mapping["mapping_reason"] = (
+            "Human reviewer marked this tool as "
+            "having no C1-C6 capability."
+        )
+
+    mapping["source"] = "manual"
+
+    tool["manual_capability_override"] = True
+    tool["manual_capabilities"] = capabilities
+
+
+def update_downstream_after_manual_decision(
+    tool_name,
+    capabilities,
+    decision_reason=None,
+):
+    result_5 = st.session_state.get(
+        "pipeline_result_5"
+    )
+
+    if not isinstance(result_5, dict):
+        raise RuntimeError(
+            "Module 5 result is not available. "
+            "Run the security analysis first."
+        )
+
+    tools = result_5.get("tools", [])
+
+    if not isinstance(tools, list):
+        raise RuntimeError(
+            "Module 5 did not return a valid tools list."
+        )
+
+    matching_tool = None
+
+    for pipeline_tool in tools:
+        if not isinstance(pipeline_tool, dict):
+            continue
+
+        if pipeline_tool.get("tool") == tool_name:
+            matching_tool = pipeline_tool
+            break
+
+    if matching_tool is None:
+        raise ValueError(
+            f"Tool '{tool_name}' was not found in the Module 5 result."
+        )
+
+    apply_manual_decision_to_tool(
+        matching_tool,
+        capabilities,
+        decision_reason,
+    )
+
+    st.session_state.pipeline_result_5 = result_5
+
+    result_9 = run_downstream_pipeline(
+        result_5
+    )
+
+    st.session_state.analysis_result = result_9
+
+    generated_report_path = result_9.get(
+        "final_report_path"
+    )
+
+    if generated_report_path:
+        report_path = Path(
+            generated_report_path
+        )
+
+        if report_path.exists():
+            st.session_state.report_text = (
+                report_path.read_text(
+                    encoding="utf-8"
+                )
+            )
+        else:
+            st.session_state.report_text = None
+    else:
+        st.session_state.report_text = None
+
+
 def render_tool_metadata_and_classification(tool):
-    """
-    Renders, for one tool: the metadata it was defined with, and the
-    reasoning behind each C1-C6 verdict it received. Call inside an
-    st.expander() for that tool.
-    """
+
     col_meta, col_class = st.columns(2)
 
     with col_meta:
+
         st.markdown("**Metadata provided**")
 
-        st.caption(tool.get("description") or "No description provided.")
+        st.caption(
+            tool.get("description")
+            or "No description provided."
+        )
 
         render_hint_badges(tool)
 
     with col_class:
+
         st.markdown("**Why this classification**")
 
         mapping = tool.get("mapping", {}) or {}
-        mappings_list = mapping.get("mappings", [])
+
+        mappings_list = mapping.get(
+            "mappings",
+            []
+        )
 
         if mappings_list:
+
             for entry in mappings_list:
-                cap_label = describe_capability(entry.get("capability_id"))
-                confidence_label = module_5_ontology_database._numeric_to_level(
-                    entry.get("confidence")
+
+                cap_label = describe_capability(
+                    entry.get("capability_id")
                 )
 
-                st.markdown(f"**{cap_label}**")
+                confidence_label = (
+                    module_5_ontology_database
+                    ._numeric_to_level(
+                        entry.get("confidence")
+                    )
+                )
+
+                st.markdown(
+                    f"**{cap_label}**"
+                )
+
                 st.write(
                     f"Confidence: {confidence_label} "
                     f"({entry.get('confidence', 0):.2f})"
                 )
 
                 if entry.get("normalized_match"):
-                    st.write(f"Matched expression: \"{entry['normalized_match']}\"")
 
-                st.caption(entry.get("reason", "No reason recorded."))
+                    st.write(
+                        "Matched expression: "
+                        f"\"{entry['normalized_match']}\""
+                    )
+
+                st.caption(
+                    entry.get(
+                        "reason",
+                        "No reason recorded."
+                    )
+                )
 
             if mapping.get("is_ambiguous"):
+
                 st.warning(
-                    "Matched more than one capability — treated as ambiguous."
+                    "Matched more than one capability."
                 )
+
         else:
+
             st.info(
                 mapping.get(
                     "mapping_reason",
                     "No normalized capabilities found - UNMAPPED",
                 )
             )
-# =========================================================
-# CAPABILITY RISK ANALYZER
-# =========================================================
+
+    st.divider()
+
+    st.markdown(
+        "**Human capability assignment**"
+    )
+
+    st.caption(
+        "Select the C1–C6 capabilities that this tool actually "
+        "implements. Multiple capabilities may be selected."
+    )
+
+    tool_name = tool.get(
+        "tool",
+        "Unknown tool"
+    )
+
+    mappings_list = (
+        tool.get("mapping", {}) or {}
+    ).get(
+        "mappings",
+        []
+    )
+
+    if tool.get("manual_capability_override"):
+
+        current_capabilities = set(
+            tool.get(
+                "manual_capabilities",
+                []
+            )
+        )
+
+    else:
+
+        current_capabilities = {
+            entry.get("capability_id")
+            for entry in mappings_list
+            if isinstance(entry, dict)
+            and entry.get("capability_id")
+        }
+
+    capability_ids = [
+        "C1",
+        "C2",
+        "C3",
+        "C4",
+        "C5",
+        "C6",
+    ]
+
+    selected = {}
+
+    cols = st.columns(6)
+
+    for col, cap_id in zip(
+        cols,
+        capability_ids
+    ):
+
+        with col:
+
+            selected[cap_id] = st.checkbox(
+                cap_id,
+                value=(
+                    cap_id in current_capabilities
+                ),
+                key=(
+                    f"manual_capability_"
+                    f"{tool_name}_{cap_id}"
+                ),
+            )
+
+    selected_capabilities = [
+        cap_id
+        for cap_id in capability_ids
+        if selected.get(cap_id)
+    ]
+
+    none_col, save_col = st.columns(2)
+
+    with none_col:
+
+        if st.button(
+            "None",
+            key=f"manual_capability_none_{tool_name}",
+            use_container_width=True,
+        ):
+
+            try:
+
+                module_5_ontology_database.save_manual_capabilities(
+                    tool_name=tool_name,
+                    capabilities=[],
+                )
+
+                update_downstream_after_manual_decision(
+                    tool_name=tool_name,
+                    capabilities=[],
+                    decision_reason=(
+                        "Human reviewer marked this tool as "
+                        "having no C1-C6 capability."
+                    ),
+                )
+
+                st.success(
+                    f"Saved manual capability assignment for "
+                    f"'{tool_name}'."
+                )
+
+                st.rerun()
+
+            except Exception as manual_error:
+
+                st.error(
+                    "Could not save the manual capability "
+                    f"decision: {manual_error}"
+                )
+
+    with save_col:
+
+        if st.button(
+            "Save",
+            key=f"manual_capability_save_{tool_name}",
+            type="primary",
+            use_container_width=True,
+        ):
+
+            try:
+
+                module_5_ontology_database.save_manual_capabilities(
+                    tool_name=tool_name,
+                    capabilities=selected_capabilities,
+                )
+
+                update_downstream_after_manual_decision(
+                    tool_name=tool_name,
+                    capabilities=selected_capabilities,
+                    decision_reason=(
+                        "Human-validated capability assignment."
+                    ),
+                )
+
+                st.success(
+                    f"Saved capability assignment for "
+                    f"'{tool_name}'."
+                )
+
+                st.rerun()
+
+            except Exception as manual_error:
+
+                st.error(
+                    "Could not save the manual capability "
+                    f"decision: {manual_error}"
+                )
 
 
 def render():
-
-    # =========================================================
-    # SESSION STATE
-    # =========================================================
 
     if "analysis_result" not in st.session_state:
         st.session_state.analysis_result = None
@@ -139,14 +443,11 @@ def render():
     if "report_text" not in st.session_state:
         st.session_state.report_text = None
 
+    if "pipeline_result_5" not in st.session_state:
+        st.session_state.pipeline_result_5 = None
+
     if "show_curation" not in st.session_state:
         st.session_state.show_curation = False
-
-
-
-    # =========================================================
-    # FILE UPLOAD
-    # =========================================================
 
     st.header("Capability Risk Analyzer")
 
@@ -154,6 +455,7 @@ def render():
         "Upload MCP tool metadata to analyse tool capabilities, "
         "capability composition, CIA impact, and mitigation coverage."
     )
+
     input_mode = st.radio(
         "Input source for Module 1",
         options=[INPUT_MODE_UPLOAD, INPUT_MODE_MCP],
@@ -184,23 +486,14 @@ def render():
         )
         can_run = False
 
-    # =========================================================
-    # RUN PIPELINE
-    # =========================================================
-
     if st.button(
-            "Run Security Analysis",
-            type="primary",
-            use_container_width=True,
-            disabled=not can_run,
+        "Run Security Analysis",
+        type="primary",
+        use_container_width=True,
+        disabled=not can_run,
     ):
 
         with tempfile.TemporaryDirectory() as temp_dir:
-
-            # ---------------------------------------------------------
-            #Module 1 receives the same kind of input whether
-            # the tools came from an upload or from a live MCP server.
-            # ---------------------------------------------------------
 
             try:
 
@@ -220,7 +513,9 @@ def render():
 
                 return
 
-            st.caption(f"Input source: {input_source}")
+            st.caption(
+                f"Input source: {input_source}"
+            )
 
             try:
 
@@ -239,7 +534,6 @@ def render():
                         )
                     )
 
-
                     st.write(
                         "Module 2 — Capability extraction"
                     )
@@ -249,7 +543,6 @@ def render():
                             result_1
                         )
                     )
-
 
                     st.write(
                         "Module 3 — Capability normalization"
@@ -261,7 +554,6 @@ def render():
                         )
                     )
 
-
                     st.write(
                         "Module 5 — Ontology database"
                     )
@@ -272,6 +564,7 @@ def render():
                         )
                     )
 
+                    st.session_state.pipeline_result_5 = result_5
 
                     st.write(
                         "Module 6 — Composition analysis"
@@ -283,7 +576,6 @@ def render():
                         )
                     )
 
-
                     st.write(
                         "Module 7 — Attack pattern analysis"
                     )
@@ -293,7 +585,6 @@ def render():
                             result_6
                         )
                     )
-
 
                     st.write(
                         "Module 8 — Risk assessment"
@@ -305,7 +596,6 @@ def render():
                         )
                     )
 
-
                     st.write(
                         "Module 9 — Report generation"
                     )
@@ -316,22 +606,18 @@ def render():
                         )
                     )
 
-
                     status.update(
                         label="Analysis complete",
                         state="complete",
                     )
 
-
                 st.session_state.analysis_result = result_9
-
 
                 generated_report_path = (
                     result_9.get(
                         "final_report_path"
                     )
                 )
-
 
                 if generated_report_path:
 
@@ -347,11 +633,17 @@ def render():
                             )
                         )
 
+                    else:
+
+                        st.session_state.report_text = None
+
+                else:
+
+                    st.session_state.report_text = None
 
                 st.success(
                     "Security assessment completed successfully."
                 )
-
 
             except LexiconError as lexicon_error:
 
@@ -360,7 +652,9 @@ def render():
                     "capability lexicon could not be loaded."
                 )
 
-                st.code(str(lexicon_error))
+                st.code(
+                    str(lexicon_error)
+                )
 
                 st.info(
                     "Fix the affected file in capability_lexicon/ (or repair "
@@ -376,11 +670,6 @@ def render():
 
                 st.exception(e)
 
-
-    # =========================================================
-    # RESULTS
-    # =========================================================
-
     analysis_result = (
         st.session_state.analysis_result
     )
@@ -393,16 +682,10 @@ def render():
 
         return
 
-
-    # =========================================================
-    # EXTRACT MODULE OUTPUTS
-    # =========================================================
-
     all_tools = analysis_result.get(
         "tools",
         []
     )
-
 
     composition_analysis_data = (
         analysis_result.get(
@@ -411,18 +694,12 @@ def render():
         )
     )
 
-
     mitigation_assessment_data = (
         analysis_result.get(
             "mitigation_assessment",
             {}
         )
     )
-
-
-    # =========================================================
-    # EXTRACT ALL TOOL NAMES
-    # =========================================================
 
     all_tool_names = {
         tool.get(
@@ -433,38 +710,36 @@ def render():
         if isinstance(tool, dict)
     }
 
-    #Tool LookUP Feature
     tool_lookup = {}
+
     for tool in all_tools:
+
         if isinstance(tool, dict):
-            tool_lookup.setdefault(tool.get("tool", "Unknown tool"), tool)
 
-
-
-    # =========================================================
-    # BUILD CAPABILITY PROFILE
-    # =========================================================
+            tool_lookup.setdefault(
+                tool.get(
+                    "tool",
+                    "Unknown tool"
+                ),
+                tool
+            )
 
     capability_to_tools = {}
-
 
     for tool in all_tools:
 
         if not isinstance(tool, dict):
             continue
 
-
         tool_name = tool.get(
             "tool",
             "Unknown tool"
         )
 
-
         tool_mapping = tool.get(
             "mapping",
             {}
         )
-
 
         tool_mappings_list = (
             tool_mapping.get(
@@ -473,13 +748,11 @@ def render():
             )
         )
 
-
         if not isinstance(
             tool_mappings_list,
             list,
         ):
             continue
-
 
         for mapping_entry in tool_mappings_list:
 
@@ -489,11 +762,9 @@ def render():
             ):
                 continue
 
-
             cap_id = mapping_entry.get(
                 "capability_id"
             )
-
 
             if cap_id:
 
@@ -504,11 +775,6 @@ def render():
                     tool_name
                 )
 
-
-    # =========================================================
-    # EXTRACT DETECTIONS & GAPS
-    # =========================================================
-
     matched_compositions = (
         composition_analysis_data.get(
             "detections",
@@ -516,13 +782,11 @@ def render():
         )
     )
 
-
     if not isinstance(
         matched_compositions,
         list,
     ):
         matched_compositions = []
-
 
     matched_mitigations = (
         mitigation_assessment_data.get(
@@ -531,13 +795,11 @@ def render():
         )
     )
 
-
     if not isinstance(
         matched_mitigations,
         list,
     ):
         matched_mitigations = []
-
 
     open_mitigation_gaps = (
         mitigation_assessment_data.get(
@@ -546,27 +808,19 @@ def render():
         )
     )
 
-
     if not isinstance(
         open_mitigation_gaps,
         list,
     ):
         open_mitigation_gaps = []
 
-
-    # =========================================================
-    # OVERVIEW METRICS
-    # =========================================================
-
     st.header(
         "Assessment Overview"
     )
 
-
     metric_col1, metric_col2, metric_col3, metric_col4 = (
         st.columns(4)
     )
-
 
     with metric_col1:
 
@@ -575,14 +829,12 @@ def render():
             len(all_tools),
         )
 
-
     with metric_col2:
 
         st.metric(
             "Capabilities Found",
             len(capability_to_tools),
         )
-
 
     with metric_col3:
 
@@ -591,18 +843,12 @@ def render():
             len(matched_compositions),
         )
 
-
     with metric_col4:
 
         st.metric(
             "Open Gaps",
             len(open_mitigation_gaps),
         )
-
-
-    # =========================================================
-    # RESULTS TABS
-    # =========================================================
 
     result_tab_1, result_tab_2, result_tab_3, result_tab_4, result_tab_5 = (
         st.tabs(
@@ -616,21 +862,11 @@ def render():
         )
     )
 
-
-    # =========================================================
-    # TAB 1: TOOLS & CAPABILITIES
-    # =========================================================
-
     with result_tab_1:
 
-        # =====================================================
-        # IDENTIFIED TOOLS
-        # =====================================================
-
         st.header(
-            "Identified Tools with"
+            "Identified Tools with metadata"
         )
-
 
         st.caption(
             f"Total: {len(all_tool_names)} tool(s) analysed"
@@ -640,11 +876,10 @@ def render():
 
             for tool_name in sorted(all_tool_names):
 
-                tool = tool_lookup.get(tool_name, {})
-
-                # ---------------------------------------------------------
-                # Determine main capability
-                # ---------------------------------------------------------
+                tool = tool_lookup.get(
+                    tool_name,
+                    {}
+                )
 
                 mappings = (
                     tool.get("mapping", {})
@@ -652,14 +887,14 @@ def render():
                 )
 
                 valid_mappings = [
-                    m for m in mappings
+                    m
+                    for m in mappings
                     if isinstance(m, dict)
-                       and m.get("capability_id")
+                    and m.get("capability_id")
                 ]
 
                 if valid_mappings:
 
-                    # Main capability = highest-confidence mapping
                     main_mapping = max(
                         valid_mappings,
                         key=lambda m: float(
@@ -683,10 +918,6 @@ def render():
 
                     main_capability_id = None
                     main_capability_name = "Unmapped"
-
-                # ---------------------------------------------------------
-                # Tool header
-                # ---------------------------------------------------------
 
                 if main_capability_id:
 
@@ -716,38 +947,35 @@ def render():
                         unsafe_allow_html=True,
                     )
 
-                # ---------------------------------------------------------
-                # Tool details
-                # ---------------------------------------------------------
+                with st.expander(
+                    "View metadata & classification"
+                ):
 
-                with st.expander("View metadata & classification"):
-
-                    render_tool_metadata_and_classification(tool)
+                    render_tool_metadata_and_classification(
+                        tool
+                    )
 
                 with st.expander(
                     "Implementation source & TDP scan"
                 ):
 
-                    render_tool_source_and_tdp(tool)
+                    render_tool_source_and_tdp(
+                        tool
+                    )
 
         else:
 
-            st.info("No tools identified.")
-
-
-        # =====================================================
-        # ANALYSIS: CAPABILITY & TOOL MAPPING
-        # =====================================================
+            st.info(
+                "No tools identified."
+            )
 
         st.header(
             "Capability Analysis"
         )
 
-
         st.caption(
             "Which capabilities each tool implements"
         )
-
 
         mapped_tool_names = (
             set().union(
@@ -757,14 +985,10 @@ def render():
             else set()
         )
 
-
         unmapped_tool_names = sorted(
             all_tool_names
             - mapped_tool_names
         )
-
-
-        # Capability Profile
 
         if capability_to_tools:
 
@@ -776,11 +1000,9 @@ def render():
                     tool_set
                 )
 
-
                 cap_label = describe_capability(
                     cap_id
                 )
-
 
                 st.markdown(
                     f'<span class="capability">'
@@ -788,7 +1010,6 @@ def render():
                     f'</span>',
                     unsafe_allow_html=True,
                 )
-
 
                 with st.expander(
                     f"{cap_label} - {tool_count} tool(s)"
@@ -805,13 +1026,11 @@ def render():
                         )
                     )
 
-
                     if cap_definition:
 
                         st.caption(
                             cap_definition
                         )
-
 
                     for tool_name in sorted(
                         tool_set
@@ -821,41 +1040,32 @@ def render():
                             f"• {tool_name}"
                         )
 
-
         else:
 
             st.info(
                 "No capability information available."
             )
 
-
-        # Unmapped Tools
-
         if unmapped_tool_names:
 
             st.divider()
 
-
             st.subheader(
                 "Unmapped Tools"
             )
-
 
             st.caption(
                 "These tools matched none of the C1–C6 capabilities. "
                 "Worth a manual check."
             )
 
-
             unmapped_col1, unmapped_col2, unmapped_col3 = (
                 st.columns(3)
             )
 
-
             unmapped_per_col = (
                 len(unmapped_tool_names) + 2
             ) // 3
-
 
             with unmapped_col1:
 
@@ -866,7 +1076,6 @@ def render():
                     st.write(
                         f"• {tool}"
                     )
-
 
             with unmapped_col2:
 
@@ -879,7 +1088,6 @@ def render():
                         f"• {tool}"
                     )
 
-
             with unmapped_col3:
 
                 for tool in unmapped_tool_names[
@@ -890,27 +1098,18 @@ def render():
                         f"• {tool}"
                     )
 
-
         st.divider()
-
 
         st.markdown(
             "### 📚 Reference Materials"
         )
-
 
         st.caption(
             "The following section contains reference material only — "
             "not analysis results."
         )
 
-
         st.divider()
-
-
-        # =====================================================
-        # REFERENCE: CAPABILITY TAXONOMY
-        # =====================================================
 
         with st.expander(
             "📚 **REFERENCE: Capability Taxonomy (C1–C6)**",
@@ -921,22 +1120,18 @@ def render():
                 "Fixed ontology definitions. These are reference material only."
             )
 
-
             ref_col1, ref_col2 = st.columns(
                 2,
                 gap="large",
             )
 
-
             cap_list = list(
                 CAPABILITY_SEED
             )
 
-
             mid = len(
                 cap_list
             ) // 2
-
 
             with ref_col1:
 
@@ -955,13 +1150,11 @@ def render():
                             cap_definition
                         )
 
-
                         if cap_risk:
 
                             st.caption(
                                 f"Example risk: {cap_risk}"
                             )
-
 
             with ref_col2:
 
@@ -980,17 +1173,11 @@ def render():
                             cap_definition
                         )
 
-
                         if cap_risk:
 
                             st.caption(
                                 f"Example risk: {cap_risk}"
                             )
-
-
-    # =========================================================
-    # TAB 2: COMPOSITION ANALYSIS
-    # =========================================================
 
     with result_tab_2:
 
@@ -998,19 +1185,16 @@ def render():
             "Matched Literature-Backed Capability Compositions"
         )
 
-
         st.caption(
             "Composition matches indicate required capabilities are present. "
             "A match does not establish that an attack was executed."
         )
-
 
         if not matched_compositions:
 
             st.success(
                 "No literature-backed capability compositions matched."
             )
-
 
         else:
 
@@ -1027,49 +1211,41 @@ def render():
 
                     continue
 
-
                 pattern_id = detection.get(
                     "pattern_id",
                     "Unknown"
                 )
-
 
                 pattern_name = detection.get(
                     "pattern_name",
                     "Unknown pattern"
                 )
 
-
                 severity = detection.get(
                     "severity",
                     "Unknown"
                 )
-
 
                 finding_type = detection.get(
                     "finding_type",
                     "Unknown"
                 )
 
-
                 confidence = detection.get(
                     "confidence",
                     "Unknown"
                 )
-
 
                 cap_sequence = detection.get(
                     "capability_sequence",
                     []
                 )
 
-
                 sequence_text = (
                     describe_sequence(
                         cap_sequence
                     )
                 )
-
 
                 severity_class = {
                     "high": "severity-high",
@@ -1092,10 +1268,12 @@ def render():
                     '</div>'
                 )
 
-                st.markdown(composition_html, unsafe_allow_html=True)
+                st.markdown(
+                    composition_html,
+                    unsafe_allow_html=True
+                )
 
                 col_left, col_right = st.columns(2)
-
 
                 with col_left:
 
@@ -1103,12 +1281,10 @@ def render():
                         "**Sequence**"
                     )
 
-
                     st.code(
                         sequence_text,
                         language="text",
                     )
-
 
                 with col_right:
 
@@ -1116,26 +1292,21 @@ def render():
                         "**Finding**"
                     )
 
-
                     st.write(
                         finding_type
                     )
-
 
                     st.markdown(
                         "**Confidence**"
                     )
 
-
                     st.write(
                         f"{confidence} (literature-mapping)"
                     )
 
-
                 impact_data = detection.get(
                     "impact_assessment"
                 )
-
 
                 if impact_data:
 
@@ -1143,11 +1314,9 @@ def render():
                         "#### CIA Impact"
                     )
 
-
                     cia_col1, cia_col2, cia_col3, cia_col4 = (
                         st.columns(4)
                     )
-
 
                     with cia_col1:
 
@@ -1159,7 +1328,6 @@ def render():
                             ),
                         )
 
-
                     with cia_col2:
 
                         st.metric(
@@ -1169,7 +1337,6 @@ def render():
                                 "-"
                             ),
                         )
-
 
                     with cia_col3:
 
@@ -1181,7 +1348,6 @@ def render():
                             ),
                         )
 
-
                     with cia_col4:
 
                         st.metric(
@@ -1192,7 +1358,6 @@ def render():
                             ),
                         )
 
-
                     if impact_data.get(
                         "rationale"
                     ):
@@ -1201,33 +1366,21 @@ def render():
                             "**Rationale**"
                         )
 
-
                         st.write(
                             impact_data.get(
                                 "rationale"
                             )
                         )
 
-
                 st.divider()
 
-
         st.divider()
-
-
-
-
-
-    # =========================================================
-    # TAB 3: CIA RISK & MITIGATIONS
-    # =========================================================
 
     with result_tab_3:
 
         st.header(
             "Mitigation Coverage for Matched Compositions"
         )
-
 
         if not matched_mitigations:
 
@@ -1244,7 +1397,6 @@ def render():
                     "No matched compositions require mitigation coverage."
                 )
 
-
         else:
 
             for assessment in matched_mitigations:
@@ -1256,34 +1408,28 @@ def render():
 
                     continue
 
-
                 pattern_id = assessment.get(
                     "pattern_id",
                     "Unknown"
                 )
-
 
                 pattern_name = assessment.get(
                     "pattern_name",
                     "Unknown pattern"
                 )
 
-
                 coverage_status = assessment.get(
                     "coverage_status",
                     "Unknown"
                 )
 
-
                 st.markdown(
                     f"### {pattern_id} — {pattern_name}"
                 )
 
-
                 st.markdown(
                     f"**Coverage:** `{coverage_status}`"
                 )
-
 
                 if assessment.get(
                     "note"
@@ -1295,19 +1441,16 @@ def render():
                         )
                     )
 
-
                 lit_mitigations = assessment.get(
                     "literature_mitigations",
                     []
                 )
-
 
                 if lit_mitigations:
 
                     st.markdown(
                         "#### Literature-backed Mitigations"
                     )
-
 
                     for mitigation in lit_mitigations:
 
@@ -1316,12 +1459,10 @@ def render():
                             "Unknown"
                         )
 
-
                         m_name = mitigation.get(
                             "mitigation_name",
                             "Unknown"
                         )
-
 
                         with st.expander(
                             f"{m_id} — {m_name}"
@@ -1332,12 +1473,10 @@ def render():
                                 f"{mitigation.get('evidence_type', '-')}"
                             )
 
-
                             st.write(
                                 f"**Applicable:** "
                                 f"{mitigation.get('applicability', '-')}"
                             )
-
 
                             if mitigation.get(
                                 "supporting_papers"
@@ -1348,7 +1487,6 @@ def render():
                                     f"{mitigation.get('supporting_papers')}"
                                 )
 
-
                             if mitigation.get(
                                 "timing"
                             ):
@@ -1357,7 +1495,6 @@ def render():
                                     f"**Timing:** "
                                     f"{mitigation.get('timing')}"
                                 )
-
 
                             if mitigation.get(
                                 "effectiveness_evidence"
@@ -1368,7 +1505,6 @@ def render():
                                     f"{mitigation.get('effectiveness_evidence')}"
                                 )
 
-
                             if mitigation.get(
                                 "limitations"
                             ):
@@ -1378,19 +1514,16 @@ def render():
                                     f"{mitigation.get('limitations')}"
                                 )
 
-
                 proj_mitigations = assessment.get(
                     "project_mitigations",
                     []
                 )
-
 
                 if proj_mitigations:
 
                     st.markdown(
                         "#### Project-derived Mitigations"
                     )
-
 
                     for mitigation in proj_mitigations:
 
@@ -1399,12 +1532,10 @@ def render():
                             "Unknown"
                         )
 
-
                         m_name = mitigation.get(
                             "mitigation_name",
                             "Unknown"
                         )
-
 
                         with st.expander(
                             f"{m_id} — {m_name}"
@@ -1415,24 +1546,20 @@ def render():
                                 f"{mitigation.get('control_type', '-')}"
                             )
 
-
                             st.write(
                                 f"**Timing:** "
                                 f"{mitigation.get('timing', '-')}"
                             )
-
 
                             st.write(
                                 f"**Status:** "
                                 f"{mitigation.get('evidence_status', '-')}"
                             )
 
-
                             st.write(
                                 f"**Rationale:** "
                                 f"{mitigation.get('project_rationale', '')}"
                             )
-
 
                 if assessment.get(
                     "warning"
@@ -1444,23 +1571,17 @@ def render():
                         )
                     )
 
-
                 st.divider()
-
-
-        # Open gaps
 
         st.header(
             "Open Mitigation Gaps"
         )
-
 
         if not open_mitigation_gaps:
 
             st.success(
                 "No open mitigation gaps."
             )
-
 
         else:
 
@@ -1473,24 +1594,20 @@ def render():
 
                     continue
 
-
                 pattern_id = gap.get(
                     "pattern_id",
                     "Unknown"
                 )
-
 
                 gap_text = gap.get(
                     "gap",
                     "No description."
                 )
 
-
                 proposals = gap.get(
                     "project_proposals",
                     []
                 )
-
 
                 gap_html = (
                     f'<div class="finding risk-high">'
@@ -1499,8 +1616,10 @@ def render():
                     f'</div>'
                 )
 
-                st.markdown(gap_html, unsafe_allow_html=True)
-
+                st.markdown(
+                    gap_html,
+                    unsafe_allow_html=True
+                )
 
                 if proposals:
 
@@ -1508,13 +1627,11 @@ def render():
                         "**Proposals**"
                     )
 
-
                     for proposal in proposals:
 
                         st.write(
                             f"• {proposal}"
                         )
-
 
                 if gap.get(
                     "warning"
@@ -1526,17 +1643,11 @@ def render():
                         )
                     )
 
-
-    # =========================================================
-    # TAB 4: INTERPRETATION LIMITS & DISCLAIMERS
-    # =========================================================
-
     with result_tab_4:
 
         st.header(
             "Interpretation Limits and Disclaimers"
         )
-
 
         limitation = (
             composition_analysis_data.get(
@@ -1544,13 +1655,11 @@ def render():
             )
         )
 
-
         if limitation:
 
             st.warning(
                 limitation
             )
-
 
         interpretation_data = (
             composition_analysis_data.get(
@@ -1558,7 +1667,6 @@ def render():
                 {}
             )
         )
-
 
         if interpretation_data.get(
             "impact_assessment"
@@ -1570,13 +1678,11 @@ def render():
                 )
             )
 
-
         mitigation_semantics = (
             mitigation_assessment_data.get(
                 "semantics"
             )
         )
-
 
         if mitigation_semantics:
 
@@ -1584,13 +1690,11 @@ def render():
                 mitigation_semantics
             )
 
-
         applicability_rule = (
             mitigation_assessment_data.get(
                 "applicability_rule"
             )
         )
-
 
         if applicability_rule:
 
@@ -1598,33 +1702,23 @@ def render():
                 applicability_rule
             )
 
-
         st.caption(
             "CIA totals represent CIA impact only, "
             "not converted to risk scores at this stage."
         )
 
-
         st.divider()
-
 
         st.markdown(
             "### 📚 Reference Materials"
         )
-
 
         st.caption(
             "The following sections contain reference material only — "
             "not analysis results."
         )
 
-
         st.divider()
-
-
-        # =====================================================
-        # REFERENCE: PATTERN COVERAGE (P1–P9)
-        # =====================================================
 
         pattern_coverage = (
             mitigation_assessment_data.get(
@@ -1632,7 +1726,6 @@ def render():
                 []
             )
         )
-
 
         if pattern_coverage:
 
@@ -1646,7 +1739,6 @@ def render():
                     "Use for cross-reference only."
                 )
 
-
                 for coverage in pattern_coverage:
 
                     if not isinstance(
@@ -1656,18 +1748,15 @@ def render():
 
                         continue
 
-
                     pattern_id = coverage.get(
                         "pattern_id",
                         "Unknown"
                     )
 
-
                     coverage_status = coverage.get(
                         "coverage_status",
                         "Unknown"
                     )
-
 
                     lit_ids = [
                         m.get(
@@ -1684,7 +1773,6 @@ def render():
                         )
                     ]
 
-
                     proj_ids = [
                         m.get(
                             "mitigation_id",
@@ -1700,7 +1788,6 @@ def render():
                         )
                     ]
 
-
                     lit_text = (
                         ", ".join(
                             lit_ids
@@ -1708,7 +1795,6 @@ def render():
                         if lit_ids
                         else "-"
                     )
-
 
                     proj_text = (
                         ", ".join(
@@ -1718,17 +1804,14 @@ def render():
                         else "-"
                     )
 
-
                     st.markdown(
                         f"**{pattern_id}:** `{coverage_status}`"
                     )
-
 
                     st.caption(
                         f"Literature: {lit_text} | "
                         f"Project: {proj_text}"
                     )
-
 
                     if coverage.get(
                         "note"
@@ -1740,11 +1823,6 @@ def render():
                             )
                         )
 
-
-        # =====================================================
-        # REFERENCE: MANUAL VALIDATION
-        # =====================================================
-
         with st.expander(
             "📚 **REFERENCE: Manual Validation (Mapper Calibration)**",
             expanded=False,
@@ -1755,13 +1833,11 @@ def render():
                 "the C1–C6 mapper. For reference only."
             )
 
-
             try:
 
                 validation_conn = sqlite3.connect(
                     module_5_ontology_database.DB_PATH
                 )
-
 
                 try:
 
@@ -1777,11 +1853,9 @@ def render():
                         """
                     ).fetchall()
 
-
                 finally:
 
                     validation_conn.close()
-
 
             except sqlite3.Error as db_error:
 
@@ -1791,9 +1865,7 @@ def render():
                     f"Could not read ontology database: {db_error}"
                 )
 
-
             mapper_ids_by_name = {}
-
 
             for tool_name, capability_id in mapper_rows:
 
@@ -1803,7 +1875,6 @@ def render():
                 ).add(
                     capability_id
                 )
-
 
             for (
                 ref_name,
@@ -1816,7 +1887,6 @@ def render():
                     for cap_id, _confidence, _reason
                     in ref_labels
                 }
-
 
                 with st.expander(
                     f"{ref_name} — {ref_description}"
@@ -1842,13 +1912,11 @@ def render():
                             "• Manual: intentionally unmapped"
                         )
 
-
                     mapper_ids = (
                         mapper_ids_by_name.get(
                             ref_name
                         )
                     )
-
 
                     if mapper_ids is None:
 
@@ -1856,7 +1924,6 @@ def render():
                             "No mapper verdict for same-named "
                             "tool in this run."
                         )
-
 
                     elif mapper_ids == manual_ids:
 
@@ -1872,7 +1939,6 @@ def render():
                                 or "none"
                             )
                         )
-
 
                     else:
 
@@ -1899,22 +1965,15 @@ def render():
                             )
                         )
 
-
-    # =========================================================
-    # TAB 5: FINAL REPORT
-    # =========================================================
-
     with result_tab_5:
 
         st.header(
             "Final Report"
         )
 
-
         report_text = (
             st.session_state.report_text
         )
-
 
         if report_text:
 
@@ -1926,7 +1985,6 @@ def render():
                 use_container_width=True,
             )
 
-
             with st.expander(
                 "View full report",
                 expanded=False,
@@ -1936,7 +1994,6 @@ def render():
                     report_text
                 )
 
-
         else:
 
             st.warning(
@@ -1944,13 +2001,11 @@ def render():
                 "report could not be loaded."
             )
 
-
             final_report_path = (
                 analysis_result.get(
                     "final_report_path"
                 )
             )
-
 
             if final_report_path:
 
@@ -1958,23 +2013,17 @@ def render():
                     "Expected report path:"
                 )
 
-
                 st.code(
                     str(final_report_path)
                 )
 
-# =============================================================
-# INPUT HELPERS (added in this revision)
-#
-# Two mutually exclusive input options feed the *same* Module 1 entry
-# point: an uploaded tool JSON, or metadata discovered from a live MCP
-# server. Modules 1-3 are untouched.
-# =============================================================
 
 def render_upload_input():
-    """Existing upload workflow, unchanged in behaviour."""
 
-    with st.expander("Accepted file format", expanded=False):
+    with st.expander(
+        "Accepted file format",
+        expanded=False
+    ):
 
         st.markdown(
             "**Normalized MCP tool format** - a JSON list of objects with "
@@ -2005,9 +2054,10 @@ def render_upload_input():
 
 
 def render_mcp_input():
-    """Collect MCP stdio connection details and retrieve declared metadata."""
 
-    st.markdown("**Connect to an MCP server (metadata / discovery only)**")
+    st.markdown(
+        "**Connect to an MCP server (metadata / discovery only)**"
+    )
 
     st.caption(
         "Launches a local MCP server using the stdio transport and reads its "
@@ -2028,7 +2078,9 @@ def render_mcp_input():
         ),
     )
 
-    with st.expander("Example server commands"):
+    with st.expander(
+        "Example server commands"
+    ):
 
         st.markdown(
             "**Bundled demonstration server** — no installation needed, "
@@ -2072,7 +2124,9 @@ def render_mcp_input():
         key="mcp_retrieve_button",
     ):
 
-        with st.spinner("Contacting the MCP server..."):
+        with st.spinner(
+            "Contacting the MCP server..."
+        ):
 
             try:
 
@@ -2088,7 +2142,10 @@ def render_mcp_input():
 
             except mcp_toolinfo_Retriever.McpRetrievalError as retrieval_error:
 
-                st.session_state.pop("mcp_retrieval", None)
+                st.session_state.pop(
+                    "mcp_retrieval",
+                    None
+                )
 
                 st.error(
                     f"MCP retrieval failed: {retrieval_error}"
@@ -2098,7 +2155,10 @@ def render_mcp_input():
 
             except Exception as unexpected_error:
 
-                st.session_state.pop("mcp_retrieval", None)
+                st.session_state.pop(
+                    "mcp_retrieval",
+                    None
+                )
 
                 st.error(
                     "Unexpected error while contacting the MCP server: "
@@ -2109,7 +2169,10 @@ def render_mcp_input():
 
         if not retrieval.get("tools"):
 
-            st.session_state.pop("mcp_retrieval", None)
+            st.session_state.pop(
+                "mcp_retrieval",
+                None
+            )
 
             st.warning(
                 "The server responded but did not declare any tools. "
@@ -2124,75 +2187,134 @@ def render_mcp_input():
             f"Retrieved metadata for {retrieval['tool_count']} tool(s)."
         )
 
-    retrieval = st.session_state.get("mcp_retrieval")
+    retrieval = st.session_state.get(
+        "mcp_retrieval"
+    )
 
     if retrieval:
-        render_mcp_retrieval_summary(retrieval)
+        render_mcp_retrieval_summary(
+            retrieval
+        )
 
 
 def render_mcp_retrieval_summary(retrieval):
-    """Show what the server declared about itself and its tools."""
 
-    server_info = retrieval.get("server_info") or {}
+    server_info = retrieval.get(
+        "server_info"
+    ) or {}
 
     st.divider()
 
-    st.markdown("**Server information (as declared by the server)**")
+    st.markdown(
+        "**Server information (as declared by the server)**"
+    )
 
     left, right = st.columns(2)
 
     with left:
-        st.write(f"- **Name:** {server_info.get('name', 'not provided')}")
+
         st.write(
-            f"- **Version:** {server_info.get('version', 'not provided')}"
+            f"- **Name:** "
+            f"{server_info.get('name', 'not provided')}"
+        )
+
+        st.write(
+            f"- **Version:** "
+            f"{server_info.get('version', 'not provided')}"
         )
 
     with right:
+
         st.write(
             f"- **Protocol version:** "
             f"{retrieval.get('protocol_version') or 'not provided'}"
         )
-        st.write(f"- **Transport:** {retrieval.get('transport')}")
 
-    capabilities = retrieval.get("server_capabilities") or {}
-
-    if capabilities:
         st.write(
-            "- **Declared server capabilities:** "
-            + ", ".join(sorted(capabilities.keys()))
+            f"- **Transport:** "
+            f"{retrieval.get('transport')}"
         )
 
-    if retrieval.get("instructions"):
-        with st.expander("Server instructions text"):
-            st.code(str(retrieval["instructions"]))
+    capabilities = retrieval.get(
+        "server_capabilities"
+    ) or {}
 
-    st.markdown("**Discovered tools**")
+    if capabilities:
+
+        st.write(
+            "- **Declared server capabilities:** "
+            + ", ".join(
+                sorted(
+                    capabilities.keys()
+                )
+            )
+        )
+
+    if retrieval.get(
+        "instructions"
+    ):
+
+        with st.expander(
+            "Server instructions text"
+        ):
+
+            st.code(
+                str(
+                    retrieval["instructions"]
+                )
+            )
+
+    st.markdown(
+        "**Discovered tools**"
+    )
 
     rows = []
 
-    for tool in retrieval.get("tools", []):
+    for tool in retrieval.get(
+        "tools",
+        []
+    ):
 
-        description = str(tool.get("description") or "")
+        description = str(
+            tool.get(
+                "description"
+            ) or ""
+        )
 
         declared_hints = [
             key
-            for key, origin in (tool.get("hint_provenance") or {}).items()
+            for key, origin
+            in (
+                tool.get(
+                    "hint_provenance"
+                ) or {}
+            ).items()
             if origin == "declared_by_server"
         ]
 
         rows.append(
             {
-                "Tool": tool.get("tool"),
+                "Tool": tool.get(
+                    "tool"
+                ),
                 "Description": (
                     description[:90] + "..."
                     if len(description) > 90
                     else description
                 ),
                 "Input schema": (
-                    "yes" if tool.get("input_schema") else "no"
+                    "yes"
+                    if tool.get(
+                        "input_schema"
+                    )
+                    else "no"
                 ),
                 "Hints declared": (
-                    ", ".join(sorted(declared_hints))
+                    ", ".join(
+                        sorted(
+                            declared_hints
+                        )
+                    )
                     if declared_hints
                     else "none"
                 ),
@@ -2200,30 +2322,42 @@ def render_mcp_retrieval_summary(retrieval):
         )
 
     if rows:
+
         st.dataframe(
             pd.DataFrame(rows),
             use_container_width=True,
             hide_index=True,
         )
 
-    st.caption(retrieval.get("retrieval_scope", ""))
+    st.caption(
+        retrieval.get(
+            "retrieval_scope",
+            ""
+        )
+    )
 
 
-def prepare_pipeline_input(temp_dir, input_mode, uploaded_file, mcp_retrieval):
-    """Write the selected input to a JSON file for Module 1.
-
-    Returns:
-        tuple[str, str]: (path passed to Module 1, human-readable source)
-    """
+def prepare_pipeline_input(
+    temp_dir,
+    input_mode,
+    uploaded_file,
+    mcp_retrieval
+):
 
     if input_mode == INPUT_MODE_MCP:
 
-        if not mcp_retrieval or not mcp_retrieval.get("tools"):
+        if not mcp_retrieval or not mcp_retrieval.get(
+            "tools"
+        ):
+
             raise ValueError(
                 "No MCP metadata has been retrieved yet."
             )
 
-        input_path = os.path.join(temp_dir, "mcp_retrieved_tools.json")
+        input_path = os.path.join(
+            temp_dir,
+            "mcp_retrieved_tools.json"
+        )
 
         mcp_toolinfo_Retriever.write_normalized_json(
             mcp_retrieval["tools"],
@@ -2232,38 +2366,57 @@ def prepare_pipeline_input(temp_dir, input_mode, uploaded_file, mcp_retrieval):
 
         return (
             input_path,
-            f"MCP server metadata ({mcp_retrieval.get('source')})",
+            f"MCP server metadata "
+            f"({mcp_retrieval.get('source')})",
         )
 
     if uploaded_file is not None:
 
-        input_path = os.path.join(temp_dir, uploaded_file.name)
+        input_path = os.path.join(
+            temp_dir,
+            uploaded_file.name
+        )
 
-        with open(input_path, "wb") as handle:
-            handle.write(uploaded_file.getbuffer())
+        with open(
+            input_path,
+            "wb"
+        ) as handle:
 
-        return input_path, f"uploaded file ({uploaded_file.name})"
+            handle.write(
+                uploaded_file.getbuffer()
+            )
+
+        return (
+            input_path,
+            f"uploaded file ({uploaded_file.name})"
+        )
 
     if not DEFAULT_FILE.exists():
+
         raise FileNotFoundError(
             f"The preloaded dataset was not found at {DEFAULT_FILE}. "
             f"Upload a tool JSON file instead."
         )
 
-    input_path = os.path.join(temp_dir, DEFAULT_FILE.name)
+    input_path = os.path.join(
+        temp_dir,
+        DEFAULT_FILE.name
+    )
 
-    with open(input_path, "wb") as handle:
-        handle.write(DEFAULT_FILE.read_bytes())
+    with open(
+        input_path,
+        "wb"
+    ) as handle:
 
-    return input_path, f"preloaded dataset ({DEFAULT_FILE.name})"
+        handle.write(
+            DEFAULT_FILE.read_bytes()
+        )
 
+    return (
+        input_path,
+        f"preloaded dataset ({DEFAULT_FILE.name})"
+    )
 
-# =============================================================
-# MCP HINT BADGES
-#
-# A hint is a claim made by the tool author. It is never treated as
-# evidence of what the implementation actually does.
-# =============================================================
 
 HINT_DEFINITIONS = [
     ("readOnlyHint", "Read-only", "is_read_only"),
@@ -2273,13 +2426,27 @@ HINT_DEFINITIONS = [
 ]
 
 
-def _hint_origin(tool, hint_key):
-    """Classify where a hint value came from."""
+def _hint_origin(
+    tool,
+    hint_key
+):
 
-    provenance = (tool.get("hint_provenance") or {}).get(hint_key)
-    value = tool.get(hint_key)
+    provenance = (
+        tool.get(
+            "hint_provenance"
+        ) or {}
+    ).get(
+        hint_key
+    )
 
-    if isinstance(value, bool):
+    value = tool.get(
+        hint_key
+    )
+
+    if isinstance(
+        value,
+        bool
+    ):
 
         if provenance == "declared_by_server":
             return "declared_by_server", value
@@ -2290,21 +2457,40 @@ def _hint_origin(tool, hint_key):
 
 
 def render_hint_badges(tool):
-    """Render the four MCP hints as labelled indicators with provenance."""
 
-    st.markdown("**MCP hints**")
+    st.markdown(
+        "**MCP hints**"
+    )
 
-    features = tool.get("capability_features") or {}
+    features = tool.get(
+        "capability_features"
+    ) or {}
 
-    for hint_key, label, feature_key in HINT_DEFINITIONS:
+    for (
+        hint_key,
+        label,
+        feature_key
+    ) in HINT_DEFINITIONS:
 
-        origin, value = _hint_origin(tool, hint_key)
+        origin, value = _hint_origin(
+            tool,
+            hint_key
+        )
 
         if origin == "unavailable":
 
-            inferred = features.get(feature_key) if feature_key else None
+            inferred = (
+                features.get(
+                    feature_key
+                )
+                if feature_key
+                else None
+            )
 
-            if isinstance(inferred, bool):
+            if isinstance(
+                inferred,
+                bool
+            ):
 
                 st.markdown(
                     f"- ⚪ **{label}** - `information unavailable` "
@@ -2333,7 +2519,10 @@ def render_hint_badges(tool):
             f"| {origin_label}"
         )
 
-    st.write(f"- **Source:** {tool.get('source') or 'not provided'}")
+    st.write(
+        f"- **Source:** "
+        f"{tool.get('source') or 'not provided'}"
+    )
 
     st.caption(
         "Hints are declarations made by the tool author. They are not "
@@ -2342,24 +2531,40 @@ def render_hint_badges(tool):
         "declared name and description only."
     )
 
-    if tool.get("input_schema"):
-        with st.expander("Declared input schema"):
-            st.json(tool["input_schema"])
+    if tool.get(
+        "input_schema"
+    ):
 
+        with st.expander(
+            "Declared input schema"
+        ):
 
-# =============================================================
-# IMPLEMENTATION SOURCE + ON-DEMAND TDP SCAN
-# =============================================================
+            st.json(
+                tool["input_schema"]
+            )
+
 
 def render_tool_source_and_tdp(tool):
-    """Show real implementation source if available, plus a TDP scan button."""
 
-    tool_name = tool.get("tool") or tool.get("tool_name") or "unknown_tool"
+    tool_name = (
+        tool.get("tool")
+        or tool.get("tool_name")
+        or "unknown_tool"
+    )
 
-    st.markdown("**Implementation source**")
+    st.markdown(
+        "**Implementation source**"
+    )
 
-    availability = tool_source_locator.describe_availability(tool)
-    source = availability.get("source")
+    availability = (
+        tool_source_locator.describe_availability(
+            tool
+        )
+    )
+
+    source = availability.get(
+        "source"
+    )
 
     if source:
 
@@ -2370,11 +2575,20 @@ def render_tool_source_and_tdp(tool):
         )
 
         st.code(
-            source.get("snippet", ""),
-            language=source.get("language", "text"),
+            source.get(
+                "snippet",
+                ""
+            ),
+            language=source.get(
+                "language",
+                "text"
+            ),
         )
 
-        if source.get("truncated"):
+        if source.get(
+            "truncated"
+        ):
+
             st.caption(
                 "Snippet truncated. Open the file above to read the rest."
             )
@@ -2387,13 +2601,22 @@ def render_tool_source_and_tdp(tool):
 
     else:
 
-        st.warning("Implementation source not available.")
+        st.warning(
+            "Implementation source not available."
+        )
 
-        st.caption(availability.get("message", ""))
+        st.caption(
+            availability.get(
+                "message",
+                ""
+            )
+        )
 
     st.divider()
 
-    st.markdown("**Tool Description Poisoning (TDP) scan**")
+    st.markdown(
+        "**Tool Description Poisoning (TDP) scan**"
+    )
 
     st.caption(
         "Runs only when you press the button. The scanner inspects the "
@@ -2402,38 +2625,59 @@ def render_tool_source_and_tdp(tool):
         "classification."
     )
 
-    scan_key = f"tdp_scan_result_{tool_name}"
+    scan_key = (
+        f"tdp_scan_result_{tool_name}"
+    )
 
     if st.button(
-            "Run TDP Scan",
-            key=f"tdp_scan_button_{tool_name}",
+        "Run TDP Scan",
+        key=f"tdp_scan_button_{tool_name}",
     ):
 
         try:
 
-            findings = module_tdp_scanner.scan_tool(tool)
+            findings = (
+                module_tdp_scanner.scan_tool(
+                    tool
+                )
+            )
 
             st.session_state[scan_key] = {
                 "findings": findings,
-                "source_file": source.get("file") if source else None,
+                "source_file": (
+                    source.get("file")
+                    if source
+                    else None
+                ),
             }
 
         except Exception as scan_error:
 
-            st.session_state[scan_key] = {"error": str(scan_error)}
+            st.session_state[scan_key] = {
+                "error": str(scan_error)
+            }
 
-    stored = st.session_state.get(scan_key)
+    stored = st.session_state.get(
+        scan_key
+    )
 
     if stored is None:
         return
 
-    if stored.get("error"):
+    if stored.get(
+        "error"
+    ):
 
-        st.error(f"TDP scan failed: {stored['error']}")
+        st.error(
+            f"TDP scan failed: "
+            f"{stored['error']}"
+        )
 
         return
 
-    findings = stored.get("findings") or []
+    findings = stored.get(
+        "findings"
+    ) or []
 
     if findings:
 
@@ -2445,10 +2689,18 @@ def render_tool_source_and_tdp(tool):
             pd.DataFrame(
                 [
                     {
-                        "Indicator": finding.get("id"),
-                        "Severity": finding.get("severity"),
-                        "Matched": finding.get("matched"),
-                        "Reason": finding.get("reason"),
+                        "Indicator": finding.get(
+                            "id"
+                        ),
+                        "Severity": finding.get(
+                            "severity"
+                        ),
+                        "Matched": finding.get(
+                            "matched"
+                        ),
+                        "Reason": finding.get(
+                            "reason"
+                        ),
                     }
                     for finding in findings
                 ]
@@ -2459,22 +2711,60 @@ def render_tool_source_and_tdp(tool):
 
     else:
 
-        st.success("No TDP indicators matched in the declared text.")
+        st.success(
+            "No TDP indicators matched in the declared text."
+        )
 
-    if stored.get("source_file"):
+    if stored.get(
+        "source_file"
+    ):
+
         st.caption(
             f"Implementation source available for manual review: "
             f"`{stored['source_file']}`. The scanner did not analyse it."
         )
+
     else:
+
         st.caption(
             "No implementation source was available for this tool, so only "
             "declared text was scanned."
         )
 
-    st.caption(module_tdp_scanner.SCANNER_SCOPE)
+    st.caption(
+        module_tdp_scanner.SCANNER_SCOPE
+    )
 
     st.caption(
         "Heuristic only. A match is not confirmation of an exploit, and the "
         "absence of a match is not evidence the description is clean."
     )
+
+
+def run_downstream_pipeline(result_5):
+
+    result_6 = (
+        module_6_composition_analysis.run(
+            result_5
+        )
+    )
+
+    result_7 = (
+        module_7_attack_pattern_analysis.run(
+            result_6
+        )
+    )
+
+    result_8 = (
+        module_8_risk_assessment.run(
+            result_7
+        )
+    )
+
+    result_9 = (
+        module_9_report_generation.run(
+            result_8
+        )
+    )
+
+    return result_9

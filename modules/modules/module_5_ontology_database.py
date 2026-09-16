@@ -434,3 +434,190 @@ def _seed_attack_patterns(conn):
            VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)""",
         rows,
     )
+
+def save_manual_capabilities(
+    tool_name,
+    capabilities,
+    server_source="manual_review",
+    confidence="High",
+    reason="Human-validated capability assignment.",
+):
+    """
+    Save a human-validated capability assignment for one tool.
+
+    The mapper verdicts are preserved separately as source='mapper'.
+    Manual assignments are stored as source='manual'.
+
+    capabilities:
+        Iterable of C1-C6 capability IDs.
+        An empty iterable means the tool is manually marked as unmapped.
+    """
+
+    allowed_capabilities = {
+        row[0] for row in CAPABILITY_SEED
+    }
+
+    capabilities = list(dict.fromkeys(capabilities))
+
+    invalid = set(capabilities) - allowed_capabilities
+
+    if invalid:
+        raise ValueError(
+            f"Invalid capability ID(s): {sorted(invalid)}"
+        )
+
+    conn = sqlite3.connect(DB_PATH)
+
+    try:
+        _create_tables(conn)
+
+        # Find the tool regardless of whether it originally came
+        # from the mapper or another source.
+        row = conn.execute(
+            """
+            SELECT tool_id
+            FROM tools
+            WHERE name = ?
+            ORDER BY tool_id DESC
+            LIMIT 1
+            """,
+            (tool_name,),
+        ).fetchone()
+
+        if row is None:
+            raise ValueError(
+                f"Tool '{tool_name}' was not found in the ontology database."
+            )
+
+        tool_id = row[0]
+
+        # Remove the previous human decision for this tool.
+        conn.execute(
+            """
+            DELETE FROM tool_capabilities
+            WHERE tool_id = ?
+              AND source = 'manual'
+            """,
+            (tool_id,),
+        )
+
+        # Empty list = explicit human decision that the tool has
+        # no C1-C6 capability.
+        for capability_id in capabilities:
+            conn.execute(
+                """
+                INSERT INTO tool_capabilities
+                (
+                    tool_id,
+                    capability_id,
+                    confidence,
+                    reason,
+                    source
+                )
+                VALUES (?, ?, ?, ?, 'manual')
+                """,
+                (
+                    tool_id,
+                    capability_id,
+                    confidence,
+                    reason,
+                ),
+            )
+
+        conn.commit()
+        return {
+            "tool_name": tool_name,
+            "capabilities": capabilities,
+            "source": "manual",
+            "confidence": confidence,
+            "reason": reason,
+        }
+
+    finally:
+        conn.close()
+
+
+def apply_manual_capability_override(tool):
+    """
+    Apply the latest human capability assignment to a tool.
+
+    If a manual decision exists in the database, it overrides the
+    automated mapper classification for downstream pipeline stages.
+
+    An empty manual capability list is an explicit decision that the
+    tool has no C1-C6 capability.
+    """
+
+    tool_name = tool.get("tool")
+
+    if not tool_name:
+        return tool
+
+    conn = sqlite3.connect(DB_PATH)
+
+    try:
+        _create_tables(conn)
+
+        rows = conn.execute(
+            """
+            SELECT
+                tc.capability_id,
+                tc.confidence,
+                tc.reason
+            FROM tool_capabilities tc
+            JOIN tools t
+                ON t.tool_id = tc.tool_id
+            WHERE t.name = ?
+              AND tc.source = 'manual'
+            ORDER BY tc.capability_id
+            """,
+            (tool_name,),
+        ).fetchall()
+
+    finally:
+        conn.close()
+
+    # No human decision exists.
+    # Leave the automated mapping untouched.
+    if not rows:
+        return tool
+
+    mappings = [
+        {
+            "capability_id": capability_id,
+            "confidence": 1.0,
+            "reason": reason or "Human-validated capability assignment.",
+            "normalized_match": None,
+            "source": "manual",
+        }
+        for capability_id, confidence, reason in rows
+    ]
+
+    tool.setdefault("mapping", {})
+
+    tool["mapping"]["mappings"] = mappings
+
+    tool["mapping"]["is_ambiguous"] = len(mappings) > 1
+
+    if mappings:
+        tool["mapping"]["mapping_reason"] = (
+            "Human-validated capability assignment."
+        )
+    else:
+        tool["mapping"]["mapping_reason"] = (
+            "Human reviewer marked this tool as "
+            "having no C1-C6 capability."
+        )
+
+    tool["mapping"]["source"] = "manual"
+
+    # Important:
+    # Explicitly record that this is a human override so downstream
+    # modules do not mistake it for an automated mapper result.
+    tool["manual_capability_override"] = True
+    tool["manual_capabilities"] = [
+        mapping["capability_id"]
+        for mapping in mappings
+    ]
+
+    return tool
