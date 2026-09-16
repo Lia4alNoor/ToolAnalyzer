@@ -13,7 +13,7 @@
       "rule_id": "C5-R01",
       "category": "lexical_regex",
       "match_scope": "tool_name_and_description",
-      "pattern": "\\b(execute|exec|run(s|ning)?)\\b.*\\b(command|script|shell|program|code|process)s?\\b",
+      "pattern": "\\b(execute(s|ing)|exec|run(s|ning)?)\\b.*\\b(command|script|shell|program|code|process)s?\\b",
       "reason": "Executes commands/scripts/code on the underlying system.",
       "confidence": "High",
       "enabled": true
