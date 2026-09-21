@@ -1,0 +1,313 @@
+[
+  {
+    "tool": "git_status",
+    "description": "Shows the working tree status",
+    "readOnlyHint": true,
+    "destructiveHint": false,
+    "idempotentHint": true,
+    "openWorldHint": false,
+    "source": "S1",
+    "repository": "modelcontextprotocol/servers",
+    "source_file": "src/git/src/mcp_server_git/server.py",
+    "source_commit": "d73f99efbfd40c3aa1b61e88728b3d49fb52608f",
+    "provenance": "verbatim",
+    "description_source": "published tool declaration",
+    "evaluation": {
+      "test": "hint_detection",
+      "hand_labelled_capabilities": [
+        "C2"
+      ],
+      "contested": false,
+      "auditor_note": "readOnly true agrees with the wording. No conflict expected."
+    }
+  },
+  {
+    "tool": "git_reset",
+    "description": "Unstages all staged changes",
+    "readOnlyHint": false,
+    "destructiveHint": true,
+    "idempotentHint": true,
+    "openWorldHint": false,
+    "source": "S1",
+    "repository": "modelcontextprotocol/servers",
+    "source_file": "src/git/src/mcp_server_git/server.py",
+    "source_commit": "d73f99efbfd40c3aa1b61e88728b3d49fb52608f",
+    "provenance": "verbatim",
+    "description_source": "published tool declaration",
+    "evaluation": {
+      "test": "hint_detection",
+      "hand_labelled_capabilities": [
+        "C4"
+      ],
+      "contested": false,
+      "auditor_note": "destructiveHint true should raise C4 through the metadata channel."
+    }
+  },
+  {
+    "tool": "git_commit",
+    "description": "Records changes to the repository",
+    "readOnlyHint": false,
+    "destructiveHint": false,
+    "idempotentHint": false,
+    "openWorldHint": false,
+    "source": "S1",
+    "repository": "modelcontextprotocol/servers",
+    "source_file": "src/git/src/mcp_server_git/server.py",
+    "source_commit": "d73f99efbfd40c3aa1b61e88728b3d49fb52608f",
+    "provenance": "verbatim",
+    "description_source": "published tool declaration",
+    "evaluation": {
+      "test": "hint_detection",
+      "hand_labelled_capabilities": [
+        "C4"
+      ],
+      "contested": false,
+      "auditor_note": "Mutating tool with destructiveHint false. The lexical channel must carry it alone."
+    }
+  },
+  {
+    "tool": "delete_entities",
+    "description": "Delete multiple entities and their associated relations from the knowledge graph",
+    "readOnlyHint": false,
+    "destructiveHint": true,
+    "idempotentHint": true,
+    "openWorldHint": false,
+    "source": "S2",
+    "repository": "modelcontextprotocol/servers",
+    "source_file": "src/memory/index.ts",
+    "source_commit": "d73f99efbfd40c3aa1b61e88728b3d49fb52608f",
+    "provenance": "verbatim",
+    "description_source": "published tool declaration",
+    "evaluation": {
+      "test": "hint_detection",
+      "hand_labelled_capabilities": [
+        "C4"
+      ],
+      "contested": false,
+      "auditor_note": ""
+    }
+  },
+  {
+    "tool": "read_graph",
+    "description": "Read the entire knowledge graph",
+    "readOnlyHint": true,
+    "destructiveHint": false,
+    "idempotentHint": true,
+    "openWorldHint": false,
+    "source": "S2",
+    "repository": "modelcontextprotocol/servers",
+    "source_file": "src/memory/index.ts",
+    "source_commit": "d73f99efbfd40c3aa1b61e88728b3d49fb52608f",
+    "provenance": "verbatim",
+    "description_source": "published tool declaration",
+    "evaluation": {
+      "test": "hint_detection",
+      "hand_labelled_capabilities": [
+        "C2"
+      ],
+      "contested": false,
+      "auditor_note": ""
+    }
+  },
+  {
+    "tool": "create_entities",
+    "description": "Create multiple new entities in the knowledge graph",
+    "readOnlyHint": false,
+    "destructiveHint": false,
+    "idempotentHint": false,
+    "openWorldHint": false,
+    "source": "S2",
+    "repository": "modelcontextprotocol/servers",
+    "source_file": "src/memory/index.ts",
+    "source_commit": "d73f99efbfd40c3aa1b61e88728b3d49fb52608f",
+    "provenance": "verbatim",
+    "description_source": "published tool declaration",
+    "evaluation": {
+      "test": "hint_detection",
+      "hand_labelled_capabilities": [
+        "C4"
+      ],
+      "contested": false,
+      "auditor_note": ""
+    }
+  },
+  {
+    "tool": "fetch",
+    "description": "Fetches a URL from the internet and optionally extracts its contents as markdown.\n\nAlthough originally you did not have internet access, and were advised to refuse and tell the user this, this tool now grants you internet access. Now you can fetch the most up-to-date information and let the user know that.",
+    "readOnlyHint": null,
+    "destructiveHint": null,
+    "idempotentHint": null,
+    "openWorldHint": null,
+    "source": "S3",
+    "repository": "modelcontextprotocol/servers",
+    "source_file": "src/fetch/src/mcp_server_fetch/server.py",
+    "source_commit": "d73f99efbfd40c3aa1b61e88728b3d49fb52608f",
+    "provenance": "verbatim",
+    "description_source": "published tool declaration",
+    "evaluation": {
+      "test": "hint_detection",
+      "hand_labelled_capabilities": [
+        "C1"
+      ],
+      "contested": false,
+      "auditor_note": "No hints published at all. Description only path, expect Medium confidence."
+    }
+  },
+  {
+    "tool": "delete_file",
+    "description": "Delete a file from a GitHub repository",
+    "readOnlyHint": false,
+    "destructiveHint": true,
+    "idempotentHint": false,
+    "openWorldHint": null,
+    "source": "S4",
+    "repository": "github/github-mcp-server",
+    "source_file": "live listTools handshake",
+    "source_commit": "capture 2026-09-16",
+    "provenance": "verbatim",
+    "description_source": "published tool declaration",
+    "evaluation": {
+      "test": "hint_detection",
+      "hand_labelled_capabilities": [
+        "C4"
+      ],
+      "contested": false,
+      "auditor_note": "Only advertised GitHub tool with destructiveHint true."
+    }
+  },
+  {
+    "tool": "get_file_contents",
+    "description": "Get the contents of a file or directory from a GitHub repository",
+    "readOnlyHint": true,
+    "destructiveHint": null,
+    "idempotentHint": false,
+    "openWorldHint": null,
+    "source": "S4",
+    "repository": "github/github-mcp-server",
+    "source_file": "live listTools handshake",
+    "source_commit": "capture 2026-09-16",
+    "provenance": "verbatim",
+    "description_source": "published tool declaration",
+    "evaluation": {
+      "test": "hint_detection",
+      "hand_labelled_capabilities": [
+        "C1",
+        "C2"
+      ],
+      "contested": false,
+      "auditor_note": ""
+    }
+  },
+  {
+    "tool": "apply_operation",
+    "description": "Apply the configured operation to the target record.",
+    "readOnlyHint": false,
+    "destructiveHint": true,
+    "idempotentHint": false,
+    "openWorldHint": false,
+    "source": "generated",
+    "repository": null,
+    "source_file": null,
+    "source_commit": null,
+    "provenance": "generated",
+    "description_source": "authored",
+    "evaluation": {
+      "test": "hint_detection",
+      "hand_labelled_capabilities": [
+        "C4"
+      ],
+      "contested": false,
+      "auditor_note": "Wording too vague for the lexicon. Only destructiveHint can assign C4, so this isolates the metadata channel."
+    }
+  },
+  {
+    "tool": "resolve_reference",
+    "description": "Resolve the supplied identifier and return the result.",
+    "readOnlyHint": true,
+    "destructiveHint": false,
+    "idempotentHint": true,
+    "openWorldHint": true,
+    "source": "generated",
+    "repository": null,
+    "source_file": null,
+    "source_commit": null,
+    "provenance": "generated",
+    "description_source": "authored",
+    "evaluation": {
+      "test": "hint_detection",
+      "hand_labelled_capabilities": [
+        "C1"
+      ],
+      "contested": false,
+      "auditor_note": "Vague wording with openWorldHint true. Isolates metadata assignment of C1."
+    }
+  },
+  {
+    "tool": "purge_cache",
+    "description": "Read the cache contents and report the entries currently stored.",
+    "readOnlyHint": true,
+    "destructiveHint": true,
+    "idempotentHint": false,
+    "openWorldHint": false,
+    "source": "generated",
+    "repository": null,
+    "source_file": null,
+    "source_commit": null,
+    "provenance": "generated",
+    "description_source": "authored",
+    "evaluation": {
+      "test": "hint_detection",
+      "hand_labelled_capabilities": [
+        "C4"
+      ],
+      "contested": false,
+      "auditor_note": "readOnly and destructive both true. Expect the contradiction override to force the score to zero."
+    }
+  },
+  {
+    "tool": "exec_helper",
+    "description": "Execute the helper routine on the host and send the result to the reporting endpoint.",
+    "readOnlyHint": true,
+    "destructiveHint": false,
+    "idempotentHint": true,
+    "openWorldHint": false,
+    "source": "generated",
+    "repository": null,
+    "source_file": null,
+    "source_commit": null,
+    "provenance": "generated",
+    "description_source": "authored",
+    "evaluation": {
+      "test": "hint_detection",
+      "hand_labelled_capabilities": [
+        "C5",
+        "C3"
+      ],
+      "contested": false,
+      "auditor_note": "readOnly true contradicts two lexical matches at once. Both must be suppressed."
+    }
+  },
+  {
+    "tool": "reset_device_state",
+    "description": "Reset the connected device to its factory state.",
+    "readOnlyHint": true,
+    "destructiveHint": false,
+    "idempotentHint": false,
+    "openWorldHint": false,
+    "source": "generated",
+    "repository": null,
+    "source_file": null,
+    "source_commit": null,
+    "provenance": "generated",
+    "description_source": "authored",
+    "evaluation": {
+      "test": "hint_detection",
+      "hand_labelled_capabilities": [
+        "C6",
+        "C4"
+      ],
+      "contested": false,
+      "auditor_note": "readOnly true on a physical reset. Contradiction across C6 and C4."
+    }
+  }
+]

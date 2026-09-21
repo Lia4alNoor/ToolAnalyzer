@@ -11,7 +11,13 @@ Follows the create_ontology_db design:
   accuracy can be measured against the manually labelled reference.
 - Safe to re-run: nothing is duplicated.
 
-Input:  Module 4 output (tools with C1-C6 mappings)
+Confidence storage: tool_capabilities.confidence is a TEXT band
+(High / Medium / Low), while the normalizer produces a numeric
+evidence-agreement score. The conversion goes through
+capability_normalizer._band(), which is the single source of truth for the
+score-to-band thresholds. Never re-implement those thresholds here.
+
+Input:  Module 3 output (tools with C1-C6 mappings)
 Output: same data, plus database metadata under 'ontology_db'
 """
 
@@ -19,11 +25,12 @@ import json
 import sqlite3
 from pathlib import Path
 
-# Lexical rules now live in capability_lexicon/*.json and are read through
+# Lexical rules live in capability_lexicon/*.json and are read through
 # capability_normalizer.load_active_rules() (same tuple shape as the old
-# in-code RULES list, same rules).
+# in-code RULES list, same rules). _band() converts the normalizer's numeric
+# evidence-agreement score into the TEXT band stored in the database.
 from modules.modules.capability_normalizer import (
-    CONFIDENCE_SCORES,
+    _band,
     load_active_rules,
 )
 
@@ -71,7 +78,7 @@ def run(input_data):
     Main entry point for Module 5: Ontology Database
 
     Args:
-        input_data (dict): Output from Module 4 (tools with 'mapping')
+        input_data (dict): Output from Module 3 (tools with 'mapping')
 
     Returns:
         dict: input data plus 'ontology_db' metadata
@@ -153,7 +160,7 @@ def _create_tables(conn):
             id            INTEGER PRIMARY KEY AUTOINCREMENT,
             tool_id       INTEGER NOT NULL REFERENCES tools(tool_id),
             capability_id TEXT NOT NULL REFERENCES capabilities(capability_id),
-            confidence    TEXT NOT NULL,
+            confidence    TEXT NOT NULL,   -- High | Medium | Low band from capability_normalizer._band()
             reason        TEXT,
             source        TEXT NOT NULL CHECK (source IN ('manual', 'mapper')),
             UNIQUE (tool_id, capability_id, source)
@@ -188,7 +195,9 @@ def _seed_capabilities(conn):
 
 def _seed_rules(conn):
     """Copy the exact rule lexicon out of capability_normalizer so the
-    codebook version is stored with the results."""
+    codebook version is stored with the results. The confidence stored here
+    is the rule's DECLARED base confidence (the description channel's input),
+    not a scored verdict."""
     conn.executemany(
         "INSERT OR IGNORE INTO mapping_rules (capability_id, pattern, reason, confidence) VALUES (?, ?, ?, ?)",
         [(cap, pattern, reason, confidence) for cap, pattern, reason, confidence in load_active_rules()],
@@ -230,10 +239,15 @@ def _upsert_tool(conn, name, description, server_source, ro, de, idem, ow):
 
 
 def _numeric_to_level(score):
-    for level, value in CONFIDENCE_SCORES.items():
-        if abs(value - (score or 0.0)) < 1e-9:
-            return level
-    return 'Low'
+    """Convert a numeric evidence-agreement score into its TEXT band.
+
+    Delegates to capability_normalizer._band() so the thresholds live in
+    exactly one place. Note this is a BAND lookup, not an exact-value match:
+    the normalizer emits many distinct scores (0.20 / 0.30 / 0.45 / 0.50 /
+    1.00) and any future weight change must not silently collapse them all
+    to 'Low' here.
+    """
+    return _band(score)
 
 
 def _store_tool_with_mappings(conn, tool, server_source):
@@ -248,6 +262,9 @@ def _store_tool_with_mappings(conn, tool, server_source):
         tool.get('openWorldHint'),
     )
     mapping = tool.get('mapping', {})
+    # Capabilities zeroed by a metadata contradiction are already filtered out
+    # upstream by normalize_tool(), so they never reach tool_capabilities.
+    # They remain available on the pipeline dict under 'suppressed_matches'.
     for entry in mapping.get('mappings', []):
         conn.execute(
             """INSERT OR REPLACE INTO tool_capabilities
@@ -435,6 +452,7 @@ def _seed_attack_patterns(conn):
         rows,
     )
 
+
 def save_manual_capabilities(
     tool_name,
     capabilities,
@@ -448,11 +466,14 @@ def save_manual_capabilities(
     The mapper verdicts are preserved separately as source='mapper'.
     Manual assignments are stored as source='manual'.
 
+    confidence is a TEXT band supplied by the reviewer, NOT a numeric
+    evidence-agreement score: a human decision is ground truth and is not
+    routed through the two-channel scoring model.
+
     capabilities:
         Iterable of C1-C6 capability IDs.
         An empty iterable means the tool is manually marked as unmapped.
     """
-
     allowed_capabilities = {
         row[0] for row in CAPABILITY_SEED
     }
@@ -460,14 +481,12 @@ def save_manual_capabilities(
     capabilities = list(dict.fromkeys(capabilities))
 
     invalid = set(capabilities) - allowed_capabilities
-
     if invalid:
         raise ValueError(
             f"Invalid capability ID(s): {sorted(invalid)}"
         )
 
     conn = sqlite3.connect(DB_PATH)
-
     try:
         _create_tables(conn)
 
@@ -525,6 +544,7 @@ def save_manual_capabilities(
             )
 
         conn.commit()
+
         return {
             "tool_name": tool_name,
             "capabilities": capabilities,
@@ -532,7 +552,6 @@ def save_manual_capabilities(
             "confidence": confidence,
             "reason": reason,
         }
-
     finally:
         conn.close()
 
@@ -543,21 +562,21 @@ def apply_manual_capability_override(tool):
 
     If a manual decision exists in the database, it overrides the
     automated mapper classification for downstream pipeline stages.
-
     An empty manual capability list is an explicit decision that the
     tool has no C1-C6 capability.
+
+    A human override is ground truth, so each mapping is written with
+    confidence 1.0 (the same value the normalizer reserves for FULL_SCORE,
+    i.e. band 'High'). It is deliberately NOT recomputed from the
+    description/metadata channels.
     """
-
     tool_name = tool.get("tool")
-
     if not tool_name:
         return tool
 
     conn = sqlite3.connect(DB_PATH)
-
     try:
         _create_tables(conn)
-
         rows = conn.execute(
             """
             SELECT
@@ -573,7 +592,6 @@ def apply_manual_capability_override(tool):
             """,
             (tool_name,),
         ).fetchall()
-
     finally:
         conn.close()
 
@@ -594,9 +612,7 @@ def apply_manual_capability_override(tool):
     ]
 
     tool.setdefault("mapping", {})
-
     tool["mapping"]["mappings"] = mappings
-
     tool["mapping"]["is_ambiguous"] = len(mappings) > 1
 
     if mappings:

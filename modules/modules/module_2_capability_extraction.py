@@ -73,7 +73,6 @@ def process(data):
         features = extracted.get("capability_features", {})
 
         print(
-            f" HEREHREHERE "
             f"  [+] {tool.get('tool', 'unknown')}: "
             f"read_only={features.get('is_read_only')}, "
             f"destructive={features.get('is_destructive')}, "

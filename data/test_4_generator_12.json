@@ -1,0 +1,279 @@
+[
+  {
+    "tool": "fetch",
+    "signature": "fetch(url, max_length=5000, start_index=0, raw=False)",
+    "description": "",
+    "readOnlyHint": null,
+    "destructiveHint": null,
+    "idempotentHint": null,
+    "openWorldHint": null,
+    "source": "S3",
+    "provenance": "verbatim",
+    "evaluation": {
+      "test": "generator",
+      "published_description": "Fetches a URL from the internet and optionally extracts its contents as markdown.\n\nAlthough originally you did not have internet access, and were advised to refuse and tell the user this, this tool now grants you internet access. Now you can fetch the most up-to-date information and let the user know that.",
+      "published_readOnlyHint": null,
+      "published_destructiveHint": null,
+      "published_idempotentHint": null,
+      "published_openWorldHint": null,
+      "hand_labelled_capabilities": [
+        "C1"
+      ],
+      "provenance": "verbatim"
+    }
+  },
+  {
+    "tool": "get_file_contents",
+    "signature": "get_file_contents(owner, repo, path, ref, sha)",
+    "description": "",
+    "readOnlyHint": null,
+    "destructiveHint": null,
+    "idempotentHint": null,
+    "openWorldHint": null,
+    "source": "S4",
+    "provenance": "verbatim",
+    "evaluation": {
+      "test": "generator",
+      "published_description": "Get the contents of a file or directory from a GitHub repository",
+      "published_readOnlyHint": true,
+      "published_destructiveHint": null,
+      "published_idempotentHint": false,
+      "published_openWorldHint": null,
+      "hand_labelled_capabilities": [
+        "C1",
+        "C2"
+      ],
+      "provenance": "verbatim"
+    }
+  },
+  {
+    "tool": "read_graph",
+    "signature": "read_graph()",
+    "description": "",
+    "readOnlyHint": null,
+    "destructiveHint": null,
+    "idempotentHint": null,
+    "openWorldHint": null,
+    "source": "S2",
+    "provenance": "verbatim",
+    "evaluation": {
+      "test": "generator",
+      "published_description": "Read the entire knowledge graph",
+      "published_readOnlyHint": true,
+      "published_destructiveHint": false,
+      "published_idempotentHint": true,
+      "published_openWorldHint": false,
+      "hand_labelled_capabilities": [
+        "C2"
+      ],
+      "provenance": "verbatim"
+    }
+  },
+  {
+    "tool": "git_show",
+    "signature": "git_show(repo_path, revision)",
+    "description": "",
+    "readOnlyHint": null,
+    "destructiveHint": null,
+    "idempotentHint": null,
+    "openWorldHint": null,
+    "source": "S1",
+    "provenance": "verbatim",
+    "evaluation": {
+      "test": "generator",
+      "published_description": "Shows the contents of a commit",
+      "published_readOnlyHint": true,
+      "published_destructiveHint": false,
+      "published_idempotentHint": true,
+      "published_openWorldHint": false,
+      "hand_labelled_capabilities": [
+        "C2"
+      ],
+      "provenance": "verbatim"
+    }
+  },
+  {
+    "tool": "git_commit",
+    "signature": "git_commit(repo_path, message)",
+    "description": "",
+    "readOnlyHint": null,
+    "destructiveHint": null,
+    "idempotentHint": null,
+    "openWorldHint": null,
+    "source": "S1",
+    "provenance": "verbatim",
+    "evaluation": {
+      "test": "generator",
+      "published_description": "Records changes to the repository",
+      "published_readOnlyHint": false,
+      "published_destructiveHint": false,
+      "published_idempotentHint": false,
+      "published_openWorldHint": false,
+      "hand_labelled_capabilities": [
+        "C4"
+      ],
+      "provenance": "verbatim"
+    }
+  },
+  {
+    "tool": "git_reset",
+    "signature": "git_reset(repo_path)",
+    "description": "",
+    "readOnlyHint": null,
+    "destructiveHint": null,
+    "idempotentHint": null,
+    "openWorldHint": null,
+    "source": "S1",
+    "provenance": "verbatim",
+    "evaluation": {
+      "test": "generator",
+      "published_description": "Unstages all staged changes",
+      "published_readOnlyHint": false,
+      "published_destructiveHint": true,
+      "published_idempotentHint": true,
+      "published_openWorldHint": false,
+      "hand_labelled_capabilities": [
+        "C4"
+      ],
+      "provenance": "verbatim"
+    }
+  },
+  {
+    "tool": "create_entities",
+    "signature": "create_entities(entities)",
+    "description": "",
+    "readOnlyHint": null,
+    "destructiveHint": null,
+    "idempotentHint": null,
+    "openWorldHint": null,
+    "source": "S2",
+    "provenance": "verbatim",
+    "evaluation": {
+      "test": "generator",
+      "published_description": "Create multiple new entities in the knowledge graph",
+      "published_readOnlyHint": false,
+      "published_destructiveHint": false,
+      "published_idempotentHint": false,
+      "published_openWorldHint": false,
+      "hand_labelled_capabilities": [
+        "C4"
+      ],
+      "provenance": "verbatim"
+    }
+  },
+  {
+    "tool": "delete_entities",
+    "signature": "delete_entities(entityNames)",
+    "description": "",
+    "readOnlyHint": null,
+    "destructiveHint": null,
+    "idempotentHint": null,
+    "openWorldHint": null,
+    "source": "S2",
+    "provenance": "verbatim",
+    "evaluation": {
+      "test": "generator",
+      "published_description": "Delete multiple entities and their associated relations from the knowledge graph",
+      "published_readOnlyHint": false,
+      "published_destructiveHint": true,
+      "published_idempotentHint": true,
+      "published_openWorldHint": false,
+      "hand_labelled_capabilities": [
+        "C4"
+      ],
+      "provenance": "verbatim"
+    }
+  },
+  {
+    "tool": "send_email",
+    "signature": "send_email(to, subject, body)",
+    "description": "",
+    "readOnlyHint": null,
+    "destructiveHint": null,
+    "idempotentHint": null,
+    "openWorldHint": null,
+    "source": "generated",
+    "provenance": "generated",
+    "evaluation": {
+      "test": "generator",
+      "published_description": "Send an email message to one or more recipients with a subject and body.",
+      "published_readOnlyHint": false,
+      "published_destructiveHint": false,
+      "published_idempotentHint": false,
+      "published_openWorldHint": true,
+      "hand_labelled_capabilities": [
+        "C3"
+      ],
+      "provenance": "generated"
+    }
+  },
+  {
+    "tool": "execute_command",
+    "signature": "execute_command(command, timeout)",
+    "description": "",
+    "readOnlyHint": null,
+    "destructiveHint": null,
+    "idempotentHint": null,
+    "openWorldHint": null,
+    "source": "generated",
+    "provenance": "generated",
+    "evaluation": {
+      "test": "generator",
+      "published_description": "Execute a shell command on the host system and return its standard output.",
+      "published_readOnlyHint": false,
+      "published_destructiveHint": true,
+      "published_idempotentHint": false,
+      "published_openWorldHint": false,
+      "hand_labelled_capabilities": [
+        "C5",
+        "C4"
+      ],
+      "provenance": "generated"
+    }
+  },
+  {
+    "tool": "unlock_door",
+    "signature": "unlock_door(device_id, code)",
+    "description": "",
+    "readOnlyHint": null,
+    "destructiveHint": null,
+    "idempotentHint": null,
+    "openWorldHint": null,
+    "source": "generated",
+    "provenance": "generated",
+    "evaluation": {
+      "test": "generator",
+      "published_description": "Unlock the specified smart lock so the door can be opened.",
+      "published_readOnlyHint": false,
+      "published_destructiveHint": true,
+      "published_idempotentHint": false,
+      "published_openWorldHint": false,
+      "hand_labelled_capabilities": [
+        "C6",
+        "C4"
+      ],
+      "provenance": "generated"
+    }
+  },
+  {
+    "tool": "get_sum",
+    "signature": "get_sum(a, b)",
+    "description": "",
+    "readOnlyHint": null,
+    "destructiveHint": null,
+    "idempotentHint": null,
+    "openWorldHint": null,
+    "source": "generated",
+    "provenance": "generated",
+    "evaluation": {
+      "test": "generator",
+      "published_description": "Return the sum of two numbers.",
+      "published_readOnlyHint": true,
+      "published_destructiveHint": false,
+      "published_idempotentHint": true,
+      "published_openWorldHint": false,
+      "hand_labelled_capabilities": [],
+      "provenance": "generated"
+    }
+  }
+]

@@ -1,0 +1,14 @@
+{
+  "servers_investigated": 20,
+  "servers_successfully_connected": 15,
+  "servers_failed": 5,
+  "tools_found": 215,
+  "tools_with_metadata": 215,
+  "tools_with_only_basic_metadata": 0,
+  "tools_with_extended_metadata": 215,
+  "metadata_consistent": null,
+  "metadata_inconsistent": null,
+  "metadata_not_verifiable": null,
+  "tools_with_source_code": null,
+  "tools_without_source_code": null
+}

@@ -1,3 +1,6 @@
+import pandas as pd
+import streamlit as st
+import json
 import os
 import sqlite3
 import tempfile
@@ -13,7 +16,7 @@ from modules.modules import (
     module_6_composition_analysis,
     module_7_attack_pattern_analysis,
     module_8_risk_assessment,
-    module_9_report_generation
+    module_9_report_generation,
 )
 
 from modules import (
@@ -21,10 +24,10 @@ from modules import (
     module_tdp_scanner,
     tool_source_locator,
 )
+
 from modules.capability_lexicon_loader import LexiconError
 
 from pathlib import Path
-
 DEFAULT_FILE = (
     Path(__file__).resolve().parent.parent
     / "data"
@@ -32,7 +35,7 @@ DEFAULT_FILE = (
 )
 
 INPUT_MODE_UPLOAD = "Upload JSON"
-INPUT_MODE_MCP = "Connect to MCP Server"
+INPUT_MODE_MCP = "Probe Available MCP Servers"
 CAPABILITY_SEED = module_5_ontology_database.CAPABILITY_SEED
 
 CAPABILITY_INFO = {
@@ -463,8 +466,9 @@ def render():
         key="input_mode",
         help=(
             "The two options are mutually exclusive and both feed the same "
-            "Module 1 - Module 2 - Module 3 pipeline. Connecting to a server "
-            "reads declared metadata only; no tool is executed."
+            "Module 1 - Module 2 - Module 3 pipeline. The MCP option discovers "
+            "publicly advertised servers and reads declared metadata using "
+            "initialization and tools/list only. No MCP tool is executed."
         ),
     )
 
@@ -475,14 +479,15 @@ def render():
     else:
         render_mcp_input()
 
-    mcp_retrieval = st.session_state.get("mcp_retrieval")
+    mcp_probe_result = st.session_state.get(
+        "mcp_probe_result"
+    )
 
     can_run = True
 
-    if input_mode == INPUT_MODE_MCP and not mcp_retrieval:
+    if input_mode == INPUT_MODE_MCP and not mcp_probe_result:
         st.info(
-            "Retrieve tool metadata from an MCP server above, then run the "
-            "analysis."
+            "Probe the available MCP servers above, then run the analysis."
         )
         can_run = False
 
@@ -501,7 +506,7 @@ def render():
                     temp_dir,
                     input_mode,
                     uploaded_file,
-                    st.session_state.get("mcp_retrieval"),
+                    st.session_state.get("mcp_probe_result"),
                 )
 
             except Exception as preparation_error:
@@ -2056,146 +2061,713 @@ def render_upload_input():
 def render_mcp_input():
 
     st.markdown(
-        "**Connect to an MCP server (metadata / discovery only)**"
+        "**Probe available MCP servers "
+        "(passive discovery only)**"
     )
 
     st.caption(
-        "Launches a local MCP server using the stdio transport and reads its "
-        "`initialize` response and `tools/list` declarations: server info, "
-        "protocol version, server capabilities, tool names, descriptions, "
-        "input schemas and annotations. No tool is executed, and no "
+        "Module 1 discovers publicly advertised MCP servers from the "
+        "MCP Registry. It then attempts passive MCP communication using "
+        "initialization and `tools/list` only. The probe records the "
+        "server name, endpoint, connection status, tool names, "
+        "descriptions, input schemas and metadata declared by each server. "
+        "No MCP tool is executed, no credentials are bypassed, and no "
         "implementation code is retrieved."
     )
 
-    command = st.text_input(
-        "Server command",
-        key="mcp_command",
-        value=mcp_toolinfo_Retriever.DEMO_SERVER_COMMAND,
-        help=(
-            "The command that starts the MCP server process. It must be "
-            "installed on this machine: npx-based servers require Node.js, "
-            "uvx-based servers require uv."
-        ),
-    )
-
-    with st.expander(
-        "Example server commands"
-    ):
-
-        st.markdown(
-            "**Bundled demonstration server** — no installation needed, "
-            "exposes illustrative tool declarations only:"
-        )
-
-        st.code(
-            mcp_toolinfo_Retriever.DEMO_SERVER_COMMAND,
-            language="bash",
-        )
-
-        st.markdown(
-            "**Reference servers** — these need Node.js (`npx`) or "
-            "uv (`uvx`) installed and on PATH:"
-        )
-
-        st.code(
-            "npx -y @modelcontextprotocol/server-filesystem "
-            "C:\\path\\to\\folder\n"
-            "npx -y @modelcontextprotocol/server-memory\n"
-            "uvx mcp-server-git --repository C:\\path\\to\\repo",
-            language="bash",
-        )
-
-        st.caption(
-            "On Windows, use `python` rather than `python3` if `python3` "
-            "is not on PATH."
-        )
-
-    timeout = st.number_input(
-        "Timeout (seconds)",
-        min_value=5,
-        max_value=180,
-        value=30,
-        step=5,
-        key="mcp_timeout",
+    probe_limit = st.number_input(
+        "Maximum servers to probe",
+        min_value=1,
+        max_value=50,
+        value=20,
+        step=1,
+        key="mcp_probe_limit",
     )
 
     if st.button(
-        "Retrieve tool metadata",
-        key="mcp_retrieve_button",
+        "Probe Available MCP Servers",
+        key="mcp_probe_button",
+        type="primary",
+        use_container_width=True,
     ):
 
+        st.session_state.pop(
+            "mcp_probe_result",
+            None,
+        )
+
         with st.spinner(
-            "Contacting the MCP server..."
+            "Discovering and probing MCP servers..."
         ):
 
             try:
 
-                retrieval = (
-                    mcp_toolinfo_Retriever.retrieve_tool_metadata(
-                        transport="stdio",
-                        command=command,
-                        url=None,
-                        headers=None,
-                        timeout=int(timeout),
+                probe_result = (
+                    module_1_server_selection.probe_mcp_servers(
+                        limit=int(probe_limit)
                     )
                 )
 
-            except mcp_toolinfo_Retriever.McpRetrievalError as retrieval_error:
+                st.session_state[
+                    "mcp_probe_result"
+                ] = probe_result
 
-                st.session_state.pop(
-                    "mcp_retrieval",
-                    None
-                )
+            except Exception as probe_error:
 
                 st.error(
-                    f"MCP retrieval failed: {retrieval_error}"
+                    "MCP server probing failed: "
+                    f"{probe_error}"
+                )
+
+                st.exception(
+                    probe_error
                 )
 
                 return
 
-            except Exception as unexpected_error:
-
-                st.session_state.pop(
-                    "mcp_retrieval",
-                    None
-                )
-
-                st.error(
-                    "Unexpected error while contacting the MCP server: "
-                    f"{unexpected_error}"
-                )
-
-                return
-
-        if not retrieval.get("tools"):
-
-            st.session_state.pop(
-                "mcp_retrieval",
-                None
-            )
-
-            st.warning(
-                "The server responded but did not declare any tools. "
-                "There is nothing for Module 1 to analyse."
-            )
-
-            return
-
-        st.session_state["mcp_retrieval"] = retrieval
-
-        st.success(
-            f"Retrieved metadata for {retrieval['tool_count']} tool(s)."
-        )
-
-    retrieval = st.session_state.get(
-        "mcp_retrieval"
+    probe_result = st.session_state.get(
+        "mcp_probe_result"
     )
 
-    if retrieval:
-        render_mcp_retrieval_summary(
-            retrieval
+    if not probe_result:
+
+        st.info(
+            "Probe the available MCP servers above before running "
+            "the security analysis."
         )
 
+        return
+
+
+
+
+
+def render_mcp_probe_summary(
+    probe_result
+):
+
+    if not isinstance(
+        probe_result,
+        dict,
+    ):
+
+        st.error(
+            "The MCP probing result is not a valid dictionary."
+        )
+
+        return
+
+    servers = probe_result.get(
+        "servers",
+        []
+    )
+
+    if not isinstance(
+        servers,
+        list,
+    ):
+
+        servers = []
+
+    summary = probe_result.get(
+        "summary",
+        {}
+    )
+
+    if not isinstance(
+        summary,
+        dict,
+    ):
+
+        summary = {}
+
+    st.divider()
+
+    st.subheader(
+        "MCP Servers Probed"
+    )
+
+    st.caption(
+        "The table below shows the servers discovered by Module 1 "
+        "and the result of the passive probing attempt."
+    )
+
+    # --------------------------------------------------------
+    # Probing method
+    # --------------------------------------------------------
+
+    with st.expander(
+        "How the passive probing is performed",
+        expanded=False,
+    ):
+
+        st.markdown(
+            """
+            Module 1 performs the following read-only discovery process:
+
+            1. Discover publicly advertised MCP server records from the MCP Registry.
+            2. Read the server name, endpoint and repository information where available.
+            3. Attempt to establish the supported MCP connection.
+            4. Send the MCP initialization request.
+            5. Request the server's `tools/list` response.
+            6. Record the returned tool names, descriptions, input schemas and
+               metadata annotations.
+            7. Store the results together with server provenance and connection status.
+
+            **No MCP tool is called or executed.**
+
+            The probe does not infer C1–C6 capabilities, perform composition
+            analysis, assess risk, inspect live implementation code or claim
+            that any server or tool is malicious.
+            """
+        )
+
+    # --------------------------------------------------------
+    # Servers being probed
+    # --------------------------------------------------------
+
+    st.markdown(
+        "### Servers discovered and probed"
+    )
+
+    if not servers:
+
+        st.warning(
+            "No server records were returned by Module 1."
+        )
+
+    else:
+
+        server_names = []
+
+        for index, server in enumerate(servers, start=1):
+
+            if not isinstance(
+                server,
+                dict,
+            ):
+
+                continue
+
+            server_name = (
+                server.get("server_name")
+                or server.get("name")
+                or "unknown_server"
+            )
+
+            endpoint = (
+                server.get("endpoint")
+                or server.get("url")
+                or "Endpoint not provided"
+            )
+
+            status = (
+                server.get("connection_status")
+                or "unknown"
+            )
+
+            server_names.append(
+                f"{index}. **{server_name}** — "
+                f"`{endpoint}` — status: `{status}`"
+            )
+
+        if server_names:
+
+            for server_name_line in server_names:
+
+                st.write(
+                    server_name_line
+                )
+
+        else:
+
+            st.info(
+                "No valid server records were available."
+            )
+
+    # --------------------------------------------------------
+    # Summary metrics
+    # --------------------------------------------------------
+
+    total_nested_tools = 0
+
+    successful_servers = 0
+
+    for server in servers:
+
+        if not isinstance(
+            server,
+            dict,
+        ):
+
+            continue
+
+        if server.get(
+            "connection_status"
+        ) == "success":
+
+            successful_servers += 1
+
+            server_tools = server.get(
+                "tools",
+                []
+            )
+
+            if isinstance(
+                server_tools,
+                list,
+            ):
+
+                total_nested_tools += len(
+                    server_tools
+                )
+
+    summary_tools_found = summary.get(
+        "tools_found",
+        total_nested_tools,
+    )
+
+    if not isinstance(
+        summary_tools_found,
+        int,
+    ):
+
+        summary_tools_found = total_nested_tools
+
+    col1, col2, col3, col4 = st.columns(4)
+
+    with col1:
+
+        st.metric(
+            "Servers Probed",
+            summary.get(
+                "servers_investigated",
+                len(servers),
+            ),
+        )
+
+    with col2:
+
+        st.metric(
+            "Connected",
+            summary.get(
+                "servers_successfully_connected",
+                successful_servers,
+            ),
+        )
+
+    with col3:
+
+        st.metric(
+            "Failed",
+            summary.get(
+                "servers_failed",
+                max(
+                    len(servers) - successful_servers,
+                    0,
+                ),
+            ),
+        )
+
+    with col4:
+
+        st.metric(
+            "Tools Found",
+            summary_tools_found,
+        )
+
+    # --------------------------------------------------------
+    # Server table
+    # --------------------------------------------------------
+
+    st.markdown(
+        "### Server probing results"
+    )
+
+    rows = []
+
+    for server in servers:
+
+        if not isinstance(
+            server,
+            dict,
+        ):
+
+            continue
+
+        status = server.get(
+            "connection_status",
+            "unknown",
+        )
+
+        if status == "success":
+
+            status_display = "SUCCESS"
+
+        elif status == "timeout":
+
+            status_display = "TIMEOUT"
+
+        elif status == "failed":
+
+            status_display = "FAILED"
+
+        else:
+
+            status_display = str(
+                status
+            ).upper()
+
+        rows.append(
+            {
+                "Server": (
+                    server.get(
+                        "server_name"
+                    )
+                    or server.get(
+                        "name"
+                    )
+                    or "unknown_server"
+                ),
+
+                "Status": status_display,
+
+                "Endpoint": (
+                    server.get(
+                        "endpoint"
+                    )
+                    or server.get(
+                        "url"
+                    )
+                    or "No remote endpoint"
+                ),
+
+                "Tools": server.get(
+                    "tools_found",
+                    len(
+                        server.get(
+                            "tools",
+                            []
+                        )
+                    )
+                    if isinstance(
+                        server.get(
+                            "tools",
+                            []
+                        ),
+                        list,
+                    )
+                    else 0,
+                ),
+
+                "Metadata Tools": server.get(
+                    "tools_with_metadata",
+                    0,
+                ),
+
+                "Repository": (
+                    "Available"
+                    if server.get(
+                        "repository_url"
+                    )
+                    else "Not provided"
+                ),
+
+                "Error": server.get(
+                    "error"
+                ) or "",
+            }
+        )
+
+    if rows:
+
+        st.dataframe(
+            pd.DataFrame(rows),
+            use_container_width=True,
+            hide_index=True,
+        )
+
+    else:
+
+        st.info(
+            "No server probing rows are available."
+        )
+
+    # --------------------------------------------------------
+    # Detailed server results
+    # --------------------------------------------------------
+
+    st.markdown(
+        "### Probe details"
+    )
+
+    for server in servers:
+
+        if not isinstance(
+            server,
+            dict,
+        ):
+
+            continue
+
+        server_name = (
+            server.get(
+                "server_name"
+            )
+            or server.get(
+                "name"
+            )
+            or "unknown_server"
+        )
+
+        status = server.get(
+            "connection_status",
+            "unknown",
+        )
+
+        tools = server.get(
+            "tools",
+            []
+        )
+
+        if not isinstance(
+            tools,
+            list,
+        ):
+
+            tools = []
+
+        tools_found = server.get(
+            "tools_found",
+            len(tools),
+        )
+
+        with st.expander(
+            f"{server_name} — "
+            f"{str(status).upper()} — "
+            f"{tools_found} tool(s)"
+        ):
+
+            st.write(
+                f"**Server name:** "
+                f"{server_name}"
+            )
+
+            st.write(
+                f"**Endpoint:** "
+                f"{server.get('endpoint') or 'Not found'}"
+            )
+
+            st.write(
+                f"**Connection attempted:** "
+                f"{server.get('connection_attempted')}"
+            )
+
+            st.write(
+                f"**Connection status:** "
+                f"{status}"
+            )
+
+            st.write(
+                f"**Tools found:** "
+                f"{tools_found}"
+            )
+
+            st.write(
+                f"**Tools with metadata:** "
+                f"{server.get('tools_with_metadata', 0)}"
+            )
+
+            if server.get(
+                "repository_url"
+            ):
+
+                st.write(
+                    f"**Repository:** "
+                    f"{server['repository_url']}"
+                )
+
+            if server.get(
+                "error"
+            ):
+
+                st.warning(
+                    f"Probe error: "
+                    f"{server['error']}"
+                )
+
+            if not tools:
+
+                st.info(
+                    "No tool declarations were returned by this server."
+                )
+
+                continue
+
+            st.markdown(
+                "#### Declared tool metadata"
+            )
+
+            tool_rows = []
+
+            for tool in tools:
+
+                if not isinstance(
+                    tool,
+                    dict,
+                ):
+
+                    continue
+
+                metadata = (
+                    tool.get(
+                        "metadata"
+                    )
+                    or {}
+                )
+
+                if not isinstance(
+                    metadata,
+                    dict,
+                ):
+
+                    metadata = {}
+
+                tool_rows.append(
+                    {
+                        "Tool": (
+                            tool.get(
+                                "tool_name"
+                            )
+                            or tool.get(
+                                "tool"
+                            )
+                            or "unknown_tool"
+                        ),
+
+                        "Description": (
+                            tool.get(
+                                "desc"
+                            )
+                            or tool.get(
+                                "description"
+                            )
+                            or ""
+                        )[:120],
+
+                        "Metadata fields": tool.get(
+                            "num_metadata",
+                            len(metadata),
+                        ),
+
+                        "ReadOnly": metadata.get(
+                            "readOnlyHint"
+                        ),
+
+                        "Destructive": metadata.get(
+                            "destructiveHint"
+                        ),
+
+                        "Idempotent": metadata.get(
+                            "idempotentHint"
+                        ),
+
+                        "OpenWorld": metadata.get(
+                            "openWorldHint"
+                        ),
+                    }
+                )
+
+            if tool_rows:
+
+                st.dataframe(
+                    pd.DataFrame(tool_rows),
+                    use_container_width=True,
+                    hide_index=True,
+                )
+
+            else:
+
+                st.info(
+                    "The server returned tool records, but none had "
+                    "a valid dictionary structure."
+                )
+
+    # --------------------------------------------------------
+    # Analysis input status
+    # --------------------------------------------------------
+
+    collected_tool_count = 0
+
+    successful_server_names = []
+
+    for server in servers:
+
+        if not isinstance(
+            server,
+            dict,
+        ):
+
+            continue
+
+        if server.get(
+            "connection_status"
+        ) != "success":
+
+            continue
+
+        server_name = (
+            server.get(
+                "server_name"
+            )
+            or server.get(
+                "name"
+            )
+            or "unknown_server"
+        )
+
+        successful_server_names.append(
+            server_name
+        )
+
+        server_tools = server.get(
+            "tools",
+            []
+        )
+
+        if isinstance(
+            server_tools,
+            list,
+        ):
+
+            collected_tool_count += len(
+                server_tools
+            )
+
+    st.markdown(
+        "### Analysis input status"
+    )
+
+    if collected_tool_count:
+
+        st.success(
+            f"Module 1 collected {collected_tool_count} tool declaration(s) "
+            "from the successfully probed MCP servers. These declarations "
+            "are ready for the analysis pipeline."
+        )
+
+        st.caption(
+            "Successful servers: "
+            + ", ".join(
+                successful_server_names
+            )
+        )
+
+    else:
+
+        st.warning(
+            "No tools were collected from the successfully probed servers."
+        )
 
 def render_mcp_retrieval_summary(retrieval):
 
@@ -2341,45 +2913,256 @@ def prepare_pipeline_input(
     temp_dir,
     input_mode,
     uploaded_file,
-    mcp_retrieval
+    mcp_probe_result,
 ):
 
     if input_mode == INPUT_MODE_MCP:
 
-        if not mcp_retrieval or not mcp_retrieval.get(
-            "tools"
+        if not isinstance(
+            mcp_probe_result,
+            dict,
         ):
 
             raise ValueError(
-                "No MCP metadata has been retrieved yet."
+                "No MCP server probing result is available."
+            )
+
+        servers = mcp_probe_result.get(
+            "servers",
+            []
+        )
+
+        if not isinstance(
+            servers,
+            list,
+        ):
+
+            raise ValueError(
+                "The MCP probing result does not contain a valid "
+                "servers list."
+            )
+
+        tools = []
+
+        connected_servers = []
+
+        for server in servers:
+
+            if not isinstance(
+                server,
+                dict,
+            ):
+
+                continue
+
+            if server.get(
+                "connection_status"
+            ) != "success":
+
+                continue
+
+            server_name = (
+                server.get(
+                    "server_name"
+                )
+                or server.get(
+                    "name"
+                )
+                or "unknown_server"
+            )
+
+            endpoint = (
+                server.get(
+                    "endpoint"
+                )
+                or server.get(
+                    "url"
+                )
+            )
+
+            connected_servers.append(
+                server_name
+            )
+
+            server_tools = server.get(
+                "tools",
+                []
+            )
+
+            if not isinstance(
+                server_tools,
+                list,
+            ):
+
+                continue
+
+            for collected_tool in server_tools:
+
+                if not isinstance(
+                    collected_tool,
+                    dict,
+                ):
+
+                    continue
+
+                metadata = (
+                    collected_tool.get(
+                        "metadata"
+                    )
+                    or {}
+                )
+
+                if not isinstance(
+                    metadata,
+                    dict,
+                ):
+
+                    metadata = {}
+
+                tool_name = (
+                    collected_tool.get(
+                        "tool_name"
+                    )
+                    or collected_tool.get(
+                        "tool"
+                    )
+                )
+
+                description = (
+                    collected_tool.get(
+                        "desc"
+                    )
+                    or collected_tool.get(
+                        "description"
+                    )
+                    or ""
+                )
+
+                normalized_tool = {
+                    "tool": tool_name,
+
+                    "description": description,
+
+                    "readOnlyHint": metadata.get(
+                        "readOnlyHint"
+                    ),
+
+                    "destructiveHint": metadata.get(
+                        "destructiveHint"
+                    ),
+
+                    "idempotentHint": metadata.get(
+                        "idempotentHint"
+                    ),
+
+                    "openWorldHint": metadata.get(
+                        "openWorldHint"
+                    ),
+
+                    "input_schema": (
+                        collected_tool.get(
+                            "input_schema"
+                        )
+                        or collected_tool.get(
+                            "inputSchema"
+                        )
+                    ),
+
+                    "source": (
+                        f"MCP:{server_name}"
+                    ),
+
+                    "server_name": server_name,
+
+                    "server_endpoint": endpoint,
+
+                    "server_connection_status": (
+                        server.get(
+                            "connection_status"
+                        )
+                    ),
+
+                    "metadata_source": (
+                        "declared_by_server"
+                    ),
+                }
+
+                # Preserve any additional metadata fields that may
+                # already exist in the collector output.
+                if collected_tool.get(
+                    "hint_provenance"
+                ) is not None:
+
+                    normalized_tool[
+                        "hint_provenance"
+                    ] = collected_tool.get(
+                        "hint_provenance"
+                    )
+
+                if collected_tool.get(
+                    "metadata"
+                ) is not None:
+
+                    normalized_tool[
+                        "metadata"
+                    ] = metadata
+
+                tools.append(
+                    normalized_tool
+                )
+
+        if not tools:
+
+            raise ValueError(
+                "MCP probing completed, but no tool declarations were "
+                "collected from successfully probed servers."
             )
 
         input_path = os.path.join(
             temp_dir,
-            "mcp_retrieved_tools.json"
+            "mcp_probed_tools.json",
         )
 
-        mcp_toolinfo_Retriever.write_normalized_json(
-            mcp_retrieval["tools"],
+        with open(
             input_path,
-        )
+            "w",
+            encoding="utf-8",
+        ) as handle:
+
+            json.dump(
+                tools,
+                handle,
+                indent=2,
+                ensure_ascii=False,
+            )
 
         return (
             input_path,
-            f"MCP server metadata "
-            f"({mcp_retrieval.get('source')})",
+            "MCP server probing: "
+            + (
+                ", ".join(
+                    connected_servers
+                )
+                if connected_servers
+                else "no successful connections"
+            )
+            + f" — {len(tools)} tool declaration(s)",
         )
+
+    # --------------------------------------------------------
+    # Existing upload behaviour
+    # --------------------------------------------------------
 
     if uploaded_file is not None:
 
         input_path = os.path.join(
             temp_dir,
-            uploaded_file.name
+            uploaded_file.name,
         )
 
         with open(
             input_path,
-            "wb"
+            "wb",
         ) as handle:
 
             handle.write(
@@ -2388,24 +3171,28 @@ def prepare_pipeline_input(
 
         return (
             input_path,
-            f"uploaded file ({uploaded_file.name})"
+            f"uploaded file ({uploaded_file.name})",
         )
+
+    # --------------------------------------------------------
+    # Existing default dataset
+    # --------------------------------------------------------
 
     if not DEFAULT_FILE.exists():
 
         raise FileNotFoundError(
-            f"The preloaded dataset was not found at {DEFAULT_FILE}. "
-            f"Upload a tool JSON file instead."
+            f"The preloaded dataset was not found at "
+            f"{DEFAULT_FILE}. Upload a tool JSON file instead."
         )
 
     input_path = os.path.join(
         temp_dir,
-        DEFAULT_FILE.name
+        DEFAULT_FILE.name,
     )
 
     with open(
         input_path,
-        "wb"
+        "wb",
     ) as handle:
 
         handle.write(
@@ -2414,7 +3201,7 @@ def prepare_pipeline_input(
 
     return (
         input_path,
-        f"preloaded dataset ({DEFAULT_FILE.name})"
+        f"preloaded dataset ({DEFAULT_FILE.name})",
     )
 
 

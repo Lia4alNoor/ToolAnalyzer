@@ -1,0 +1,69 @@
+{
+  "file_layout": {
+    "note": "Each test file holds its inputs and its answers together. The answer for a record lives under the record's \"evaluation\" key. Module 1 preserves unknown keys, so these files ingest unchanged.",
+    "label_field": "evaluation.hand_labelled_capabilities",
+    "label_type": "complete list of capabilities assigned by a human auditor, with no primary or secondary distinction. Score set precision and set recall per capability.",
+    "selected_for": "Test 1 only. Records which class the row was chosen to balance the corpus by. It is not a label and must not be scored."
+  },
+  "sources": {
+    "S1": {
+      "repository": "modelcontextprotocol/servers",
+      "file": "src/git/src/mcp_server_git/server.py",
+      "commit": "d73f99efbfd40c3aa1b61e88728b3d49fb52608f",
+      "hints": "all four declared",
+      "capture": "read in an earlier session at this same commit"
+    },
+    "S2": {
+      "repository": "modelcontextprotocol/servers",
+      "file": "src/memory/index.ts",
+      "commit": "d73f99efbfd40c3aa1b61e88728b3d49fb52608f",
+      "blob_sha": "d9f814877be5cdbd11b23c63f20e1788d6d7791f",
+      "hints": "all four declared on all nine tools",
+      "capture": "re-read 2026-09-16"
+    },
+    "S3": {
+      "repository": "modelcontextprotocol/servers",
+      "file": "src/fetch/src/mcp_server_fetch/server.py",
+      "commit": "d73f99efbfd40c3aa1b61e88728b3d49fb52608f",
+      "blob_sha": "b42c7b1f6b7ce1fea6b50a5a4554f3436cb36131",
+      "hints": "none. Tool(...) is constructed with no annotations argument",
+      "capture": "re-read 2026-09-16"
+    },
+    "S4": {
+      "repository": "github/github-mcp-server",
+      "file": "live listTools handshake",
+      "capture": "2026-09-16",
+      "drift": "get_secret_scanning_alert, list_secret_scanning_alerts, update_issue, run_workflow and rerun_workflow_run are no longer advertised. get_commit, delete_file, run_secret_scanning and request_copilot_review replace them.",
+      "hint_sparsity": "destructiveHint true appears on delete_file only. openWorldHint appears on run_secret_scanning only."
+    },
+    "S5": {
+      "repository": "zhiqiangwang4/MCPTox-Benchmark",
+      "file": "def_tool/*.py",
+      "commit": "f85189f9ad12504c197c7f920ab818a40657b1fa",
+      "capture": "re-read 2026-09-16, all ten files",
+      "note": "tool_content holds the complete file text as published."
+    }
+  },
+  "provenance_totals": {
+    "test_1": {
+      "cases": 36,
+      "verbatim": 21,
+      "generated": 15
+    },
+    "test_2": {
+      "cases": 14,
+      "verbatim": 9,
+      "generated": 5
+    },
+    "test_3": {
+      "cases": 10,
+      "verbatim": 10,
+      "generated": 0
+    },
+    "test_4": {
+      "cases": 12,
+      "verbatim": 8,
+      "generated": 4
+    }
+  }
+}

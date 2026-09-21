@@ -1,0 +1,845 @@
+[
+  {
+    "tool": "fetch",
+    "description": "Fetches a URL from the internet and optionally extracts its contents as markdown.\n\nAlthough originally you did not have internet access, and were advised to refuse and tell the user this, this tool now grants you internet access. Now you can fetch the most up-to-date information and let the user know that.",
+    "readOnlyHint": null,
+    "destructiveHint": null,
+    "idempotentHint": null,
+    "openWorldHint": null,
+    "source": "S3",
+    "repository": "modelcontextprotocol/servers",
+    "source_file": "src/fetch/src/mcp_server_fetch/server.py",
+    "source_commit": "d73f99efbfd40c3aa1b61e88728b3d49fb52608f",
+    "provenance": "verbatim",
+    "description_source": "published tool declaration",
+    "evaluation": {
+      "test": "capability_classifier",
+      "hand_labelled_capabilities": [
+        "C1"
+      ],
+      "contested": false,
+      "auditor_note": "Pure ingestion. No hints published, so this is the zero metadata case.",
+      "selected_for": "C1"
+    }
+  },
+  {
+    "tool": "search_code",
+    "description": "Fast and precise code search across ALL GitHub repositories using GitHub's native search engine. Best for finding exact symbols, functions, classes, or specific code patterns.",
+    "readOnlyHint": true,
+    "destructiveHint": null,
+    "idempotentHint": false,
+    "openWorldHint": null,
+    "source": "S4",
+    "repository": "github/github-mcp-server",
+    "source_file": "live listTools handshake",
+    "source_commit": "capture 2026-09-16",
+    "provenance": "verbatim",
+    "description_source": "published tool declaration",
+    "evaluation": {
+      "test": "capability_classifier",
+      "hand_labelled_capabilities": [
+        "C1"
+      ],
+      "contested": false,
+      "auditor_note": "",
+      "selected_for": "C1"
+    }
+  },
+  {
+    "tool": "search_repositories",
+    "description": "Find GitHub repositories by name, description, readme, topics, or other metadata. Perfect for discovering projects, finding examples, or locating specific repositories across GitHub.",
+    "readOnlyHint": true,
+    "destructiveHint": null,
+    "idempotentHint": false,
+    "openWorldHint": null,
+    "source": "S4",
+    "repository": "github/github-mcp-server",
+    "source_file": "live listTools handshake",
+    "source_commit": "capture 2026-09-16",
+    "provenance": "verbatim",
+    "description_source": "published tool declaration",
+    "evaluation": {
+      "test": "capability_classifier",
+      "hand_labelled_capabilities": [
+        "C1"
+      ],
+      "contested": false,
+      "auditor_note": "",
+      "selected_for": "C1"
+    }
+  },
+  {
+    "tool": "get_file_contents",
+    "description": "Get the contents of a file or directory from a GitHub repository",
+    "readOnlyHint": true,
+    "destructiveHint": null,
+    "idempotentHint": false,
+    "openWorldHint": null,
+    "source": "S4",
+    "repository": "github/github-mcp-server",
+    "source_file": "live listTools handshake",
+    "source_commit": "capture 2026-09-16",
+    "provenance": "verbatim",
+    "description_source": "published tool declaration",
+    "evaluation": {
+      "test": "capability_classifier",
+      "hand_labelled_capabilities": [
+        "C1",
+        "C2"
+      ],
+      "contested": false,
+      "auditor_note": "Ingests remote content and reads repository contents, so both apply.",
+      "selected_for": "C1"
+    }
+  },
+  {
+    "tool": "fetch_url_json",
+    "description": "Retrieve a JSON document from a remote HTTP endpoint and return the parsed body.",
+    "readOnlyHint": true,
+    "destructiveHint": false,
+    "idempotentHint": true,
+    "openWorldHint": true,
+    "source": "generated",
+    "repository": null,
+    "source_file": null,
+    "source_commit": null,
+    "provenance": "generated",
+    "description_source": "authored",
+    "evaluation": {
+      "test": "capability_classifier",
+      "hand_labelled_capabilities": [
+        "C1"
+      ],
+      "contested": false,
+      "auditor_note": "",
+      "selected_for": "C1"
+    }
+  },
+  {
+    "tool": "rss_feed_read",
+    "description": "Read the latest entries from a public RSS or Atom feed URL.",
+    "readOnlyHint": true,
+    "destructiveHint": false,
+    "idempotentHint": true,
+    "openWorldHint": true,
+    "source": "generated",
+    "repository": null,
+    "source_file": null,
+    "source_commit": null,
+    "provenance": "generated",
+    "description_source": "authored",
+    "evaluation": {
+      "test": "capability_classifier",
+      "hand_labelled_capabilities": [
+        "C1"
+      ],
+      "contested": false,
+      "auditor_note": "",
+      "selected_for": "C1"
+    }
+  },
+  {
+    "tool": "read_graph",
+    "description": "Read the entire knowledge graph",
+    "readOnlyHint": true,
+    "destructiveHint": false,
+    "idempotentHint": true,
+    "openWorldHint": false,
+    "source": "S2",
+    "repository": "modelcontextprotocol/servers",
+    "source_file": "src/memory/index.ts",
+    "source_commit": "d73f99efbfd40c3aa1b61e88728b3d49fb52608f",
+    "provenance": "verbatim",
+    "description_source": "published tool declaration",
+    "evaluation": {
+      "test": "capability_classifier",
+      "hand_labelled_capabilities": [
+        "C2"
+      ],
+      "contested": false,
+      "auditor_note": "",
+      "selected_for": "C2"
+    }
+  },
+  {
+    "tool": "search_nodes",
+    "description": "Search for nodes in the knowledge graph based on a query",
+    "readOnlyHint": true,
+    "destructiveHint": false,
+    "idempotentHint": true,
+    "openWorldHint": false,
+    "source": "S2",
+    "repository": "modelcontextprotocol/servers",
+    "source_file": "src/memory/index.ts",
+    "source_commit": "d73f99efbfd40c3aa1b61e88728b3d49fb52608f",
+    "provenance": "verbatim",
+    "description_source": "published tool declaration",
+    "evaluation": {
+      "test": "capability_classifier",
+      "hand_labelled_capabilities": [
+        "C2"
+      ],
+      "contested": false,
+      "auditor_note": "",
+      "selected_for": "C2"
+    }
+  },
+  {
+    "tool": "open_nodes",
+    "description": "Open specific nodes in the knowledge graph by their names",
+    "readOnlyHint": true,
+    "destructiveHint": false,
+    "idempotentHint": true,
+    "openWorldHint": false,
+    "source": "S2",
+    "repository": "modelcontextprotocol/servers",
+    "source_file": "src/memory/index.ts",
+    "source_commit": "d73f99efbfd40c3aa1b61e88728b3d49fb52608f",
+    "provenance": "verbatim",
+    "description_source": "published tool declaration",
+    "evaluation": {
+      "test": "capability_classifier",
+      "hand_labelled_capabilities": [
+        "C2"
+      ],
+      "contested": false,
+      "auditor_note": "",
+      "selected_for": "C2"
+    }
+  },
+  {
+    "tool": "git_show",
+    "description": "Shows the contents of a commit",
+    "readOnlyHint": true,
+    "destructiveHint": false,
+    "idempotentHint": true,
+    "openWorldHint": false,
+    "source": "S1",
+    "repository": "modelcontextprotocol/servers",
+    "source_file": "src/git/src/mcp_server_git/server.py",
+    "source_commit": "d73f99efbfd40c3aa1b61e88728b3d49fb52608f",
+    "provenance": "verbatim",
+    "description_source": "published tool declaration",
+    "evaluation": {
+      "test": "capability_classifier",
+      "hand_labelled_capabilities": [
+        "C2"
+      ],
+      "contested": false,
+      "auditor_note": "",
+      "selected_for": "C2"
+    }
+  },
+  {
+    "tool": "git_log",
+    "description": "Shows the commit logs",
+    "readOnlyHint": true,
+    "destructiveHint": false,
+    "idempotentHint": true,
+    "openWorldHint": false,
+    "source": "S1",
+    "repository": "modelcontextprotocol/servers",
+    "source_file": "src/git/src/mcp_server_git/server.py",
+    "source_commit": "d73f99efbfd40c3aa1b61e88728b3d49fb52608f",
+    "provenance": "verbatim",
+    "description_source": "published tool declaration",
+    "evaluation": {
+      "test": "capability_classifier",
+      "hand_labelled_capabilities": [
+        "C2"
+      ],
+      "contested": false,
+      "auditor_note": "",
+      "selected_for": "C2"
+    }
+  },
+  {
+    "tool": "get_commit",
+    "description": "Get details for a commit from a GitHub repository",
+    "readOnlyHint": true,
+    "destructiveHint": null,
+    "idempotentHint": false,
+    "openWorldHint": null,
+    "source": "S4",
+    "repository": "github/github-mcp-server",
+    "source_file": "live listTools handshake",
+    "source_commit": "capture 2026-09-16",
+    "provenance": "verbatim",
+    "description_source": "published tool declaration",
+    "evaluation": {
+      "test": "capability_classifier",
+      "hand_labelled_capabilities": [
+        "C2"
+      ],
+      "contested": false,
+      "auditor_note": "Substituted for get_secret_scanning_alert, no longer advertised.",
+      "selected_for": "C2"
+    }
+  },
+  {
+    "tool": "add_issue_comment",
+    "description": "Add a comment and/or reaction to a specific issue or issue comment in a GitHub repository. At least one of body or reaction is required.",
+    "readOnlyHint": false,
+    "destructiveHint": null,
+    "idempotentHint": false,
+    "openWorldHint": null,
+    "source": "S4",
+    "repository": "github/github-mcp-server",
+    "source_file": "live listTools handshake",
+    "source_commit": "capture 2026-09-16",
+    "provenance": "verbatim",
+    "description_source": "published tool declaration",
+    "evaluation": {
+      "test": "capability_classifier",
+      "hand_labelled_capabilities": [
+        "C3",
+        "C4"
+      ],
+      "contested": false,
+      "auditor_note": "Emits a message to other people and mutates issue state.",
+      "selected_for": "C3"
+    }
+  },
+  {
+    "tool": "add_comment_to_pending_review",
+    "description": "Add review comment to the requester's latest pending pull request review. A pending review needs to already exist to call this (check with the user if not sure).",
+    "readOnlyHint": false,
+    "destructiveHint": null,
+    "idempotentHint": false,
+    "openWorldHint": null,
+    "source": "S4",
+    "repository": "github/github-mcp-server",
+    "source_file": "live listTools handshake",
+    "source_commit": "capture 2026-09-16",
+    "provenance": "verbatim",
+    "description_source": "published tool declaration",
+    "evaluation": {
+      "test": "capability_classifier",
+      "hand_labelled_capabilities": [
+        "C3",
+        "C4"
+      ],
+      "contested": false,
+      "auditor_note": "",
+      "selected_for": "C3"
+    }
+  },
+  {
+    "tool": "pull_request_review_write",
+    "description": "Create and/or submit, delete review of a pull request.",
+    "readOnlyHint": false,
+    "destructiveHint": null,
+    "idempotentHint": false,
+    "openWorldHint": null,
+    "source": "S4",
+    "repository": "github/github-mcp-server",
+    "source_file": "live listTools handshake",
+    "source_commit": "capture 2026-09-16",
+    "provenance": "verbatim",
+    "description_source": "published tool declaration",
+    "evaluation": {
+      "test": "capability_classifier",
+      "hand_labelled_capabilities": [
+        "C3",
+        "C4"
+      ],
+      "contested": false,
+      "auditor_note": "Deleting a review is also a destructive state change.",
+      "selected_for": "C3"
+    }
+  },
+  {
+    "tool": "send_email",
+    "description": "Send an email message to one or more recipients with a subject and body.",
+    "readOnlyHint": false,
+    "destructiveHint": false,
+    "idempotentHint": false,
+    "openWorldHint": true,
+    "source": "generated",
+    "repository": null,
+    "source_file": null,
+    "source_commit": null,
+    "provenance": "generated",
+    "description_source": "authored",
+    "evaluation": {
+      "test": "capability_classifier",
+      "hand_labelled_capabilities": [
+        "C3"
+      ],
+      "contested": false,
+      "auditor_note": "",
+      "selected_for": "C3"
+    }
+  },
+  {
+    "tool": "post_webhook",
+    "description": "Post a JSON payload to an external webhook endpoint.",
+    "readOnlyHint": false,
+    "destructiveHint": false,
+    "idempotentHint": false,
+    "openWorldHint": true,
+    "source": "generated",
+    "repository": null,
+    "source_file": null,
+    "source_commit": null,
+    "provenance": "generated",
+    "description_source": "authored",
+    "evaluation": {
+      "test": "capability_classifier",
+      "hand_labelled_capabilities": [
+        "C3"
+      ],
+      "contested": false,
+      "auditor_note": "",
+      "selected_for": "C3"
+    }
+  },
+  {
+    "tool": "publish_message",
+    "description": "Publish a message to an external channel so that other participants receive it.",
+    "readOnlyHint": false,
+    "destructiveHint": false,
+    "idempotentHint": false,
+    "openWorldHint": true,
+    "source": "generated",
+    "repository": null,
+    "source_file": null,
+    "source_commit": null,
+    "provenance": "generated",
+    "description_source": "authored",
+    "evaluation": {
+      "test": "capability_classifier",
+      "hand_labelled_capabilities": [
+        "C3"
+      ],
+      "contested": false,
+      "auditor_note": "",
+      "selected_for": "C3"
+    }
+  },
+  {
+    "tool": "git_commit",
+    "description": "Records changes to the repository",
+    "readOnlyHint": false,
+    "destructiveHint": false,
+    "idempotentHint": false,
+    "openWorldHint": false,
+    "source": "S1",
+    "repository": "modelcontextprotocol/servers",
+    "source_file": "src/git/src/mcp_server_git/server.py",
+    "source_commit": "d73f99efbfd40c3aa1b61e88728b3d49fb52608f",
+    "provenance": "verbatim",
+    "description_source": "published tool declaration",
+    "evaluation": {
+      "test": "capability_classifier",
+      "hand_labelled_capabilities": [
+        "C4"
+      ],
+      "contested": false,
+      "auditor_note": "",
+      "selected_for": "C4"
+    }
+  },
+  {
+    "tool": "git_reset",
+    "description": "Unstages all staged changes",
+    "readOnlyHint": false,
+    "destructiveHint": true,
+    "idempotentHint": true,
+    "openWorldHint": false,
+    "source": "S1",
+    "repository": "modelcontextprotocol/servers",
+    "source_file": "src/git/src/mcp_server_git/server.py",
+    "source_commit": "d73f99efbfd40c3aa1b61e88728b3d49fb52608f",
+    "provenance": "verbatim",
+    "description_source": "published tool declaration",
+    "evaluation": {
+      "test": "capability_classifier",
+      "hand_labelled_capabilities": [
+        "C4"
+      ],
+      "contested": false,
+      "auditor_note": "Only git tool published with destructiveHint true.",
+      "selected_for": "C4"
+    }
+  },
+  {
+    "tool": "create_entities",
+    "description": "Create multiple new entities in the knowledge graph",
+    "readOnlyHint": false,
+    "destructiveHint": false,
+    "idempotentHint": false,
+    "openWorldHint": false,
+    "source": "S2",
+    "repository": "modelcontextprotocol/servers",
+    "source_file": "src/memory/index.ts",
+    "source_commit": "d73f99efbfd40c3aa1b61e88728b3d49fb52608f",
+    "provenance": "verbatim",
+    "description_source": "published tool declaration",
+    "evaluation": {
+      "test": "capability_classifier",
+      "hand_labelled_capabilities": [
+        "C4"
+      ],
+      "contested": false,
+      "auditor_note": "",
+      "selected_for": "C4"
+    }
+  },
+  {
+    "tool": "delete_entities",
+    "description": "Delete multiple entities and their associated relations from the knowledge graph",
+    "readOnlyHint": false,
+    "destructiveHint": true,
+    "idempotentHint": true,
+    "openWorldHint": false,
+    "source": "S2",
+    "repository": "modelcontextprotocol/servers",
+    "source_file": "src/memory/index.ts",
+    "source_commit": "d73f99efbfd40c3aa1b61e88728b3d49fb52608f",
+    "provenance": "verbatim",
+    "description_source": "published tool declaration",
+    "evaluation": {
+      "test": "capability_classifier",
+      "hand_labelled_capabilities": [
+        "C4"
+      ],
+      "contested": false,
+      "auditor_note": "",
+      "selected_for": "C4"
+    }
+  },
+  {
+    "tool": "create_or_update_file",
+    "description": "Create or update a single file in a GitHub repository. If updating, you should provide the SHA of the file you want to update. SHA MUST be provided for existing file updates.",
+    "readOnlyHint": false,
+    "destructiveHint": null,
+    "idempotentHint": false,
+    "openWorldHint": null,
+    "source": "S4",
+    "repository": "github/github-mcp-server",
+    "source_file": "live listTools handshake",
+    "source_commit": "capture 2026-09-16",
+    "provenance": "verbatim",
+    "description_source": "published tool declaration",
+    "evaluation": {
+      "test": "capability_classifier",
+      "hand_labelled_capabilities": [
+        "C4"
+      ],
+      "contested": false,
+      "auditor_note": "",
+      "selected_for": "C4"
+    }
+  },
+  {
+    "tool": "delete_file",
+    "description": "Delete a file from a GitHub repository",
+    "readOnlyHint": false,
+    "destructiveHint": true,
+    "idempotentHint": false,
+    "openWorldHint": null,
+    "source": "S4",
+    "repository": "github/github-mcp-server",
+    "source_file": "live listTools handshake",
+    "source_commit": "capture 2026-09-16",
+    "provenance": "verbatim",
+    "description_source": "published tool declaration",
+    "evaluation": {
+      "test": "capability_classifier",
+      "hand_labelled_capabilities": [
+        "C4"
+      ],
+      "contested": false,
+      "auditor_note": "Substituted for update_issue. Only advertised tool with destructiveHint true.",
+      "selected_for": "C4"
+    }
+  },
+  {
+    "tool": "run_secret_scanning",
+    "description": "Scan files, content, or recent changes for secrets such as API keys, passwords, tokens, and credentials.",
+    "readOnlyHint": true,
+    "destructiveHint": null,
+    "idempotentHint": false,
+    "openWorldHint": false,
+    "source": "S4",
+    "repository": "github/github-mcp-server",
+    "source_file": "live listTools handshake",
+    "source_commit": "capture 2026-09-16",
+    "provenance": "verbatim",
+    "description_source": "published tool declaration",
+    "evaluation": {
+      "test": "capability_classifier",
+      "hand_labelled_capabilities": [
+        "C5",
+        "C2"
+      ],
+      "contested": true,
+      "auditor_note": "Contested. Runs a scanning process yet is published readOnlyHint true, and it reads file content.",
+      "selected_for": "C5"
+    }
+  },
+  {
+    "tool": "request_copilot_review",
+    "description": "Request a GitHub Copilot code review for a pull request. Use this for automated feedback on pull requests, usually before requesting a human reviewer.",
+    "readOnlyHint": false,
+    "destructiveHint": null,
+    "idempotentHint": false,
+    "openWorldHint": null,
+    "source": "S4",
+    "repository": "github/github-mcp-server",
+    "source_file": "live listTools handshake",
+    "source_commit": "capture 2026-09-16",
+    "provenance": "verbatim",
+    "description_source": "published tool declaration",
+    "evaluation": {
+      "test": "capability_classifier",
+      "hand_labelled_capabilities": [
+        "C5",
+        "C3"
+      ],
+      "contested": true,
+      "auditor_note": "Contested. Triggers an external automated agent rather than a shell process.",
+      "selected_for": "C5"
+    }
+  },
+  {
+    "tool": "execute_command",
+    "description": "Execute a shell command on the host system and return its standard output.",
+    "readOnlyHint": false,
+    "destructiveHint": true,
+    "idempotentHint": false,
+    "openWorldHint": false,
+    "source": "generated",
+    "repository": null,
+    "source_file": null,
+    "source_commit": null,
+    "provenance": "generated",
+    "description_source": "authored",
+    "evaluation": {
+      "test": "capability_classifier",
+      "hand_labelled_capabilities": [
+        "C5",
+        "C4"
+      ],
+      "contested": false,
+      "auditor_note": "",
+      "selected_for": "C5"
+    }
+  },
+  {
+    "tool": "run_script",
+    "description": "Run a script file on the host interpreter and return the result.",
+    "readOnlyHint": false,
+    "destructiveHint": true,
+    "idempotentHint": false,
+    "openWorldHint": false,
+    "source": "generated",
+    "repository": null,
+    "source_file": null,
+    "source_commit": null,
+    "provenance": "generated",
+    "description_source": "authored",
+    "evaluation": {
+      "test": "capability_classifier",
+      "hand_labelled_capabilities": [
+        "C5",
+        "C4"
+      ],
+      "contested": false,
+      "auditor_note": "",
+      "selected_for": "C5"
+    }
+  },
+  {
+    "tool": "start_process",
+    "description": "Start a long running process on the host and return its process identifier.",
+    "readOnlyHint": false,
+    "destructiveHint": true,
+    "idempotentHint": false,
+    "openWorldHint": false,
+    "source": "generated",
+    "repository": null,
+    "source_file": null,
+    "source_commit": null,
+    "provenance": "generated",
+    "description_source": "authored",
+    "evaluation": {
+      "test": "capability_classifier",
+      "hand_labelled_capabilities": [
+        "C5",
+        "C4"
+      ],
+      "contested": false,
+      "auditor_note": "",
+      "selected_for": "C5"
+    }
+  },
+  {
+    "tool": "eval_javascript",
+    "description": "Evaluate a JavaScript expression inside the active page context and return the value.",
+    "readOnlyHint": false,
+    "destructiveHint": true,
+    "idempotentHint": false,
+    "openWorldHint": false,
+    "source": "generated",
+    "repository": null,
+    "source_file": null,
+    "source_commit": null,
+    "provenance": "generated",
+    "description_source": "authored",
+    "evaluation": {
+      "test": "capability_classifier",
+      "hand_labelled_capabilities": [
+        "C5"
+      ],
+      "contested": false,
+      "auditor_note": "",
+      "selected_for": "C5"
+    }
+  },
+  {
+    "tool": "unlock_door",
+    "description": "Unlock the specified smart lock so the door can be opened.",
+    "readOnlyHint": false,
+    "destructiveHint": true,
+    "idempotentHint": false,
+    "openWorldHint": false,
+    "source": "generated",
+    "repository": null,
+    "source_file": null,
+    "source_commit": null,
+    "provenance": "generated",
+    "description_source": "authored",
+    "evaluation": {
+      "test": "capability_classifier",
+      "hand_labelled_capabilities": [
+        "C6",
+        "C4"
+      ],
+      "contested": false,
+      "auditor_note": "Physical actuation always changes device state, so C4 accompanies C6.",
+      "selected_for": "C6"
+    }
+  },
+  {
+    "tool": "set_thermostat_temperature",
+    "description": "Set the target temperature on a connected thermostat.",
+    "readOnlyHint": false,
+    "destructiveHint": false,
+    "idempotentHint": true,
+    "openWorldHint": false,
+    "source": "generated",
+    "repository": null,
+    "source_file": null,
+    "source_commit": null,
+    "provenance": "generated",
+    "description_source": "authored",
+    "evaluation": {
+      "test": "capability_classifier",
+      "hand_labelled_capabilities": [
+        "C6",
+        "C4"
+      ],
+      "contested": false,
+      "auditor_note": "",
+      "selected_for": "C6"
+    }
+  },
+  {
+    "tool": "turn_on_switch",
+    "description": "Turn on a connected physical switch or appliance.",
+    "readOnlyHint": false,
+    "destructiveHint": false,
+    "idempotentHint": true,
+    "openWorldHint": false,
+    "source": "generated",
+    "repository": null,
+    "source_file": null,
+    "source_commit": null,
+    "provenance": "generated",
+    "description_source": "authored",
+    "evaluation": {
+      "test": "capability_classifier",
+      "hand_labelled_capabilities": [
+        "C6",
+        "C4"
+      ],
+      "contested": false,
+      "auditor_note": "",
+      "selected_for": "C6"
+    }
+  },
+  {
+    "tool": "set_light_state",
+    "description": "Set the brightness and colour state of a connected light.",
+    "readOnlyHint": false,
+    "destructiveHint": false,
+    "idempotentHint": true,
+    "openWorldHint": false,
+    "source": "generated",
+    "repository": null,
+    "source_file": null,
+    "source_commit": null,
+    "provenance": "generated",
+    "description_source": "authored",
+    "evaluation": {
+      "test": "capability_classifier",
+      "hand_labelled_capabilities": [
+        "C6",
+        "C4"
+      ],
+      "contested": false,
+      "auditor_note": "",
+      "selected_for": "C6"
+    }
+  },
+  {
+    "tool": "open_garage_door",
+    "description": "Open the garage door actuator.",
+    "readOnlyHint": false,
+    "destructiveHint": true,
+    "idempotentHint": false,
+    "openWorldHint": false,
+    "source": "generated",
+    "repository": null,
+    "source_file": null,
+    "source_commit": null,
+    "provenance": "generated",
+    "description_source": "authored",
+    "evaluation": {
+      "test": "capability_classifier",
+      "hand_labelled_capabilities": [
+        "C6",
+        "C4"
+      ],
+      "contested": false,
+      "auditor_note": "",
+      "selected_for": "C6"
+    }
+  },
+  {
+    "tool": "navigate_to_pose",
+    "description": "Command the mobile robot to drive to the given map pose.",
+    "readOnlyHint": false,
+    "destructiveHint": true,
+    "idempotentHint": false,
+    "openWorldHint": false,
+    "source": "generated",
+    "repository": null,
+    "source_file": null,
+    "source_commit": null,
+    "provenance": "generated",
+    "description_source": "authored",
+    "evaluation": {
+      "test": "capability_classifier",
+      "hand_labelled_capabilities": [
+        "C6",
+        "C4"
+      ],
+      "contested": false,
+      "auditor_note": "",
+      "selected_for": "C6"
+    }
+  }
+]

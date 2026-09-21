@@ -3,7 +3,7 @@ from pathlib import Path
 
 from tabs import (
     capability_risk_analyzer,
-    threat_curation_chain,
+    LLM_powered_tool_decri,
     edit_database,
 )
 
@@ -65,7 +65,7 @@ with tab1:
 # TAB 2 — THREAT CURATION CHAIN
 
 with tab2:
-    threat_curation_chain.render()
+    LLM_powered_tool_decri.render()
 
 
 # TAB 3 — EDIT DATABASE
