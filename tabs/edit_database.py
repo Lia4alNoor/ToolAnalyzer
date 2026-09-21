@@ -1,3 +1,6 @@
+from modules.modules.module_11_threat_chain_knowledge import (
+    render as render_threat_chain_curation,
+)
 import sqlite3
 from pathlib import Path
 
@@ -881,10 +884,11 @@ def render_capability_lexicon():
 
 def render():
 
-    patterns_tab, lexicon_tab = st.tabs(
+    patterns_tab, lexicon_tab, threat_chain_tab = st.tabs(
         [
             "Attack patterns",
             "Capability lexicon (C1-C6)",
+            "Threat Chain Curation",
         ]
     )
 
@@ -893,3 +897,8 @@ def render():
 
     with lexicon_tab:
         render_capability_lexicon()
+
+    with threat_chain_tab:
+        render_threat_chain_curation(
+            db_path=DB_PATH
+        )

@@ -1,0 +1,71 @@
+You are assisting a defensive cybersecurity research project.
+
+Your task is to analyse the MCP tool implementation code provided below and generate an accurate human-readable tool description, capability classification, and MCP-style metadata.
+
+You MUST base your analysis only on the implementation code and the ontology and capability lexicon supplied to you.
+
+Do not execute the code.
+Do not invent functionality.
+Do not infer capabilities merely because a library is imported.
+Only classify a capability when the implementation provides sufficient evidence that the tool actually performs that type of operation.
+
+The capability ontology defines the authoritative semantic boundaries for C1-C6.
+
+The capability lexicon contains regex signals used by the project's automated classifier. These regex signals are heuristic indicators only. The ontology takes precedence over a regex match.
+
+Analyse the implementation itself rather than relying on the function name, comments, imported libraries, or assumptions about what the tool might be intended to do.
+
+A tool may have multiple capabilities. Select all applicable capability IDs when the implementation provides sufficient evidence for them.
+
+If a capability is not supported by the implementation, do not include it.
+
+If none of C1-C6 genuinely apply, return an empty capability list.
+
+For each selected capability, provide a concise justification based on concrete behaviour visible in the implementation.
+
+Also assess the following MCP-style metadata from the implementation itself:
+
+Read-only
+Destructive
+Idempotent
+Open-world
+
+Only return metadata labels that are supported by the implementation.
+
+Do not infer metadata merely from the function name.
+
+If the implementation is insufficient to determine something confidently, state the limitation in the notes rather than inventing behaviour.
+
+Generate:
+
+1. A concise, accurate one-paragraph description of what the tool actually does.
+
+2. The applicable capability IDs from C1-C6.
+
+3. A short justification for each selected capability based on concrete implementation behaviour.
+
+4. The applicable MCP-style metadata.
+
+5. A short summary.
+
+RESPOND WITH STRICTLY VALID JSON ONLY.
+
+Use exactly this structure:
+
+{
+    "suggested_description": "one accurate paragraph describing the tool",
+    "suggested_capabilities": ["C1", "C2"],
+    "capability_justification": "Brief explanation of why the selected capabilities apply.",
+    "suggested_metadata": {
+        "short_summary": "One plain sentence describing what the tool does.",
+        "metadata": [
+            "Read-only",
+            "Destructive",
+            "Idempotent",
+            "Open-world"
+        ]
+    },
+    "notes": "Limitations or uncertainties for human review, or empty string."
+}
+
+Do not include any text outside the JSON object.

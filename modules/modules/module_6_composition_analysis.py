@@ -131,38 +131,6 @@ def _tool_caps(tool):
             out[cap] = conf
     return out
 
-
-def _load_eligible_patterns(conn):
-    """Read attack patterns from the DB. Only ELIGIBLE and
-    ELIGIBLE_SYNTHESIZED patterns are used for matching; NOT_ELIGIBLE
-    (e.g. P7) stays in the DB as evidence but is excluded here."""
-    rows = conn.execute(
-        """SELECT pattern_id, pattern_name, capability_sequence, attack_goal,
-                  supporting_papers, evidence_type, confidence,
-                  module_6_eligibility, severity, confidentiality_impact,
-                  integrity_impact, availability_impact, cia_total,
-                  cia_evidence_type, cia_rationale
-           FROM attack_patterns
-           WHERE module_6_eligibility IN ('ELIGIBLE', 'ELIGIBLE_SYNTHESIZED')
-           ORDER BY pattern_id"""
-    ).fetchall()
-    patterns = []
-    for r in rows:
-        seq = json.loads(r[2]) if r[2] else None
-        if not seq:
-            continue  # defensive: never match a pattern with no sequence
-        patterns.append({
-            "pattern_id": r[0], "pattern_name": r[1], "capability_sequence": seq,
-            "attack_goal": r[3], "supporting_papers": r[4],
-            "evidence_type": r[5], "confidence": r[6],
-            "module_6_eligibility": r[7], "severity": r[8],
-            "confidentiality_impact": r[9], "integrity_impact": r[10],
-            "availability_impact": r[11], "cia_total": r[12],
-            "cia_evidence_type": r[13], "cia_rationale": r[14],
-        })
-    return patterns
-
-
 def process(data):
     if not data:
         return None
@@ -354,6 +322,38 @@ def process(data):
           "composition findings, not observed execution chains) "
           f"for {source_file}")
     return result
+
+
+def _load_eligible_patterns(conn):
+    """Read attack patterns from the DB. Only ELIGIBLE and
+    ELIGIBLE_SYNTHESIZED patterns are used for matching; NOT_ELIGIBLE
+    (e.g. P7) stays in the DB as evidence but is excluded here."""
+    rows = conn.execute(
+        """SELECT pattern_id, pattern_name, capability_sequence, attack_goal,
+                  supporting_papers, evidence_type, confidence,
+                  module_6_eligibility, severity, confidentiality_impact,
+                  integrity_impact, availability_impact, cia_total,
+                  cia_evidence_type, cia_rationale
+           FROM attack_patterns
+           WHERE module_6_eligibility IN ('ELIGIBLE', 'ELIGIBLE_SYNTHESIZED')
+           ORDER BY pattern_id"""
+    ).fetchall()
+    patterns = []
+    for r in rows:
+        seq = json.loads(r[2]) if r[2] else None
+        if not seq:
+            continue  # defensive: never match a pattern with no sequence
+        patterns.append({
+            "pattern_id": r[0], "pattern_name": r[1], "capability_sequence": seq,
+            "attack_goal": r[3], "supporting_papers": r[4],
+            "evidence_type": r[5], "confidence": r[6],
+            "module_6_eligibility": r[7], "severity": r[8],
+            "confidentiality_impact": r[9], "integrity_impact": r[10],
+            "availability_impact": r[11], "cia_total": r[12],
+            "cia_evidence_type": r[13], "cia_rationale": r[14],
+        })
+    return patterns
+
 
 
 def _tool_id(conn, name, source_file):

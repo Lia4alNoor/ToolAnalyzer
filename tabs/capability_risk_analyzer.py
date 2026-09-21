@@ -1195,6 +1195,15 @@ def render():
             "A match does not establish that an attack was executed."
         )
 
+        # ------------------------------------------------------------
+        # UI-only state for manually crossing out candidate tools.
+        # This does NOT modify the analysis results.
+        # State is kept separately for each pattern.
+        # ------------------------------------------------------------
+
+        if "crossed_composition_tools" not in st.session_state:
+            st.session_state.crossed_composition_tools = {}
+
         if not matched_compositions:
 
             st.success(
@@ -1206,10 +1215,9 @@ def render():
             for detection in matched_compositions:
 
                 if not isinstance(
-                    detection,
-                    dict,
+                        detection,
+                        dict,
                 ):
-
                     st.write(
                         detection
                     )
@@ -1277,6 +1285,258 @@ def render():
                     composition_html,
                     unsafe_allow_html=True
                 )
+
+                # ------------------------------------------------------------
+                # Interactive candidate-tool display
+                # Reference only - does not modify analysis results
+                # ------------------------------------------------------------
+
+                contributing_tools = detection.get(
+                    "contributing_tools",
+                    []
+                )
+
+                if contributing_tools:
+
+                    with st.expander(
+                            "🔎 View candidate tools by capability",
+                            expanded=False,
+                    ):
+
+                        st.caption(
+                            "Tools are shown as candidate tools for each capability "
+                            "step in the literature-defined sequence. Click a tool "
+                            "to cross it out for visual reference only. This does "
+                            "not modify the analysis, capability mappings, "
+                            "composition finding, CIA assessment, or report."
+                        )
+
+                        # --------------------------------------------------------
+                        # UI-only state.
+                        # Separate state is maintained for each pattern.
+                        # --------------------------------------------------------
+
+                        if "crossed_composition_tools" not in st.session_state:
+                            st.session_state.crossed_composition_tools = {}
+
+                        crossed_tools = (
+                            st.session_state
+                            .crossed_composition_tools
+                            .setdefault(
+                                pattern_id,
+                                set(),
+                            )
+                        )
+
+                        # --------------------------------------------------------
+                        # Capability sequence display
+                        # --------------------------------------------------------
+
+                        sequence_parts = []
+
+                        for step in contributing_tools:
+
+                            if not isinstance(step, dict):
+                                continue
+
+                            capability = step.get(
+                                "capability",
+                                "Unknown"
+                            )
+
+                            candidate_tools = step.get(
+                                "candidate_tools",
+                                []
+                            )
+
+                            if not isinstance(candidate_tools, list):
+                                candidate_tools = []
+
+                            capability_html = (
+                                f"<span class='composition-capability'>"
+                                f"{capability}"
+                                f"</span>"
+                            )
+
+                            tool_html = []
+
+                            for tool_name in candidate_tools:
+
+                                tool_name = str(tool_name)
+
+                                if tool_name in crossed_tools:
+
+                                    tool_html.append(
+                                        f"<span class='composition-tool "
+                                        f"composition-tool-crossed'>"
+                                        f"<s>{tool_name}</s>"
+                                        f"</span>"
+                                    )
+
+                                else:
+
+                                    tool_html.append(
+                                        f"<span class='composition-tool'>"
+                                        f"{tool_name}"
+                                        f"</span>"
+                                    )
+
+                            if tool_html:
+                                sequence_parts.append(
+                                    f"<div class='composition-group'>"
+                                    f"{capability_html}"
+                                    f"<span class='composition-brace'>{{</span>"
+                                    f"{' '.join(tool_html)}"
+                                    f"<span class='composition-brace'>}}</span>"
+                                    f"</div>"
+                                )
+
+                        # --------------------------------------------------------
+                        # Visual capability -> candidate tool representation
+                        # --------------------------------------------------------
+
+                        st.markdown(
+                            "<div class='composition-tool-flow'>"
+                            + "<div class='composition-arrow-row'>"
+                            + "<span class='composition-flow-arrow'>→</span>"
+                            .join(sequence_parts)
+                            + "</div>"
+                            + "</div>",
+                            unsafe_allow_html=True,
+                        )
+
+                        st.markdown(
+                            "<div style='height: 0.6rem;'></div>",
+                            unsafe_allow_html=True,
+                        )
+
+                        # --------------------------------------------------------
+                        # Interactive buttons
+                        #
+                        # IMPORTANT:
+                        # step_index is part of the key.
+                        #
+                        # This prevents duplicate keys when a pattern contains:
+                        #
+                        # C4 → C4 → C4
+                        #
+                        # --------------------------------------------------------
+
+                        st.markdown(
+                            "**Click a tool to mark it as crossed out:**"
+                        )
+
+                        for step in contributing_tools:
+
+                            if not isinstance(step, dict):
+                                continue
+
+                            step_index = step.get(
+                                "step_index",
+                                0
+                            )
+
+                            capability = step.get(
+                                "capability",
+                                "Unknown"
+                            )
+
+                            candidate_tools = step.get(
+                                "candidate_tools",
+                                []
+                            )
+
+                            if not isinstance(candidate_tools, list):
+                                candidate_tools = []
+
+                            if not candidate_tools:
+                                continue
+
+                            st.markdown(
+                                f"**{capability}**"
+                            )
+
+                            tool_columns = st.columns(
+                                min(len(candidate_tools), 4)
+                            )
+
+                            for index, tool_name in enumerate(
+                                    candidate_tools
+                            ):
+
+                                tool_name = str(tool_name)
+
+                                is_crossed = (
+                                        tool_name
+                                        in crossed_tools
+                                )
+
+                                if is_crossed:
+
+                                    button_label = (
+                                        f"~~{tool_name}~~"
+                                    )
+
+                                else:
+
+                                    button_label = tool_name
+
+                                # step_index makes this unique even when
+                                # the same capability occurs repeatedly.
+                                button_key = (
+                                    f"crossout_"
+                                    f"{pattern_id}_"
+                                    f"step_{step_index}_"
+                                    f"{capability}_"
+                                    f"{index}_"
+                                    f"{tool_name}"
+                                )
+
+                                with tool_columns[
+                                    index % len(tool_columns)
+                                ]:
+
+                                    if st.button(
+                                            button_label,
+                                            key=button_key,
+                                            use_container_width=True,
+                                    ):
+
+                                        if is_crossed:
+
+                                            crossed_tools.discard(
+                                                tool_name
+                                            )
+
+                                        else:
+
+                                            crossed_tools.add(
+                                                tool_name
+                                            )
+
+                                        st.rerun()
+
+                        # --------------------------------------------------------
+                        # Reset visual markings
+                        # --------------------------------------------------------
+
+                        if crossed_tools:
+
+                            st.markdown(
+                                "<div style='height: 0.3rem;'></div>",
+                                unsafe_allow_html=True,
+                            )
+
+                            if st.button(
+                                    "↺ Clear visual markings",
+                                    key=f"reset_crossout_{pattern_id}",
+                                    use_container_width=False,
+                            ):
+                                st.session_state.crossed_composition_tools[
+                                    pattern_id
+                                ] = set()
+
+                                st.rerun()
 
                 col_left, col_right = st.columns(2)
 
@@ -1364,9 +1624,8 @@ def render():
                         )
 
                     if impact_data.get(
-                        "rationale"
+                            "rationale"
                     ):
-
                         st.markdown(
                             "**Rationale**"
                         )
@@ -3280,15 +3539,15 @@ def render_hint_badges(tool):
             ):
 
                 st.markdown(
-                    f"- ⚪ **{label}** - `information unavailable` "
-                    f"| framework inference from declared text: "
+                    f"- ⚪ **{label}** - `unavailable` "
+                    f"|  declared text inference: "
                     f"**{str(inferred).lower()}**"
                 )
 
             else:
 
                 st.markdown(
-                    f"- ⚪ **{label}** - `information unavailable`"
+                    f"- ⚪ **{label}** - `unavailable`"
                 )
 
             continue
